@@ -7,6 +7,7 @@ namespace App\Providers;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Laravolt\Listeners\SendEmailVerificationNotification;
+use Override;
 
 final class EventServiceProvider extends ServiceProvider
 {
@@ -15,6 +16,7 @@ final class EventServiceProvider extends ServiceProvider
      *
      * @var array<string, array<int, string>>
      */
+    #[Override]
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,

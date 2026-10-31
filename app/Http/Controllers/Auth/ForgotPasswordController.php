@@ -27,33 +27,21 @@ final class ForgotPasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate(['email' => ['required', 'email', 'exists:users']]);
+        $request->validate(['email' => ['required', 'email']]);
 
-        $response = Password::INVALID_USER;
+        $email = $request->string('email')->toString();
 
-        $user = User::whereEmail($request->email)->first();
-
+        // Attempt to send reset link - this will silently fail for non-existent users
+        $user = User::whereEmail($email)->first();
         if ($user) {
-            $response = resolve('laravolt.password')->sendResetLink($user);
+            resolve('laravolt.password')->sendResetLink($user);
         }
 
-        if ($response === Password::RESET_LINK_SENT && $user) {
-            $email = $user->getEmailForPasswordReset();
+        /** @var array<string, string> $translationParams */
+        $translationParams = ['email' => $email, 'emailMasked' => Str::maskEmail($email)];
 
-            /** @var array<string, string> $translationParams */
-            $translationParams = ['email' => $email, 'emailMasked' => Str::maskEmail($email)];
-
-            return to_route('auth::forgot.show')
-                ->with('success', trans($response, $translationParams));
-        }
-
-        /** @var string $responseString */
-        $responseString = $response;
-
-        /** @var string $errorMessage */
-        $errorMessage = trans($responseString);
-
+        // Always return the same success message to prevent user enumeration
         return to_route('auth::forgot.show')
-            ->with('error', ['email' => $errorMessage]);
+            ->with('success', trans(Password::RESET_LINK_SENT, $translationParams));
     }
 }

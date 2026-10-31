@@ -50,7 +50,7 @@ test('password must be changed duration', function (): void {
     // because it is already equal with the limit
     expect($user->passwordMustBeChanged(2))->toBeTrue();
 
-    // But, if we have password duration = 3 days, user still allowed to use their passwrod
+    // But, if we have password duration = 3 days, user still allowed to use their password
     // because it has 1 day remaining.
     expect($user->passwordMustBeChanged(3))->toBeFalse();
 });

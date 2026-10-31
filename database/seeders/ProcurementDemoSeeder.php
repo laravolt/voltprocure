@@ -14,10 +14,11 @@ use App\Models\Department;
 use App\Models\Item;
 use App\Models\Supplier;
 use App\Models\User;
-use Illuminate\Database\Seeder;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
+use Laravolt\Platform\Models\Role;
 
 /**
  * Seeds a believable two-month history for the VoltProcure demo. Every
@@ -32,7 +33,6 @@ final class ProcurementDemoSeeder extends Seeder
     public function run(): void
     {
         $now = Date::now();
-        mt_srand(2026);
 
         $this->roles();
         $departments = $this->departments();
@@ -74,8 +74,6 @@ final class ProcurementDemoSeeder extends Seeder
 
     private function roles(): void
     {
-        $roleModel = config('laravolt.epicentrum.models.role');
-
         $definitions = [
             'Pemohon' => [Permission::PURCHASE_REQUEST_CREATE],
             'Manajer departemen' => [Permission::PURCHASE_REQUEST_CREATE, Permission::PURCHASE_REQUEST_APPROVE],
@@ -85,7 +83,7 @@ final class ProcurementDemoSeeder extends Seeder
 
         $roles = [];
         foreach ($definitions as $name => $permissions) {
-            $roles[$name] = $roleModel::query()->firstOrCreate(['name' => $name]);
+            $roles[$name] = Role::query()->firstOrCreate(['name' => $name]);
             $roles[$name]->syncPermission($permissions);
         }
 
@@ -228,14 +226,14 @@ final class ProcurementDemoSeeder extends Seeder
      */
     private function play(CarbonImmutable $now, int $daysAgo, Department $department, User $requester, string $purpose, array $lines, string $outcome, array $items, array $suppliers): void
     {
-        $at = fn (int $days, int $hour): CarbonImmutable => $now->copy()->subDays($days)->setTime($hour, mt_rand(0, 59));
+        $at = fn (int $days, int $hour): CarbonImmutable => $now->copy()->subDays($days)->setTime($hour, ($days * 7) % 60);
 
         Date::setTestNow($at($daysAgo, 9));
         $request = resolve(CreatePurchaseRequest::class)->handle($requester, [
             'purpose' => $purpose,
             'needed_by' => $now->copy()->subDays($daysAgo)->addDays(14)->toDateString(),
             'lines' => array_map(
-                fn (string $sku, int $quantity): array => ['item_id' => $items[$sku]->getKey(), 'quantity' => $quantity],
+                fn (string $sku, int $quantity): array => ['item_id' => $items[$sku]->id, 'quantity' => $quantity],
                 array_keys($lines),
                 $lines,
             ),
@@ -251,22 +249,22 @@ final class ProcurementDemoSeeder extends Seeder
         }
 
         Date::setTestNow($at(max(0, $daysAgo - 1), 14));
-        $manager = $department->manager;
+        $manager = $department->manager()->firstOrFail();
         $decide = resolve(DecidePurchaseRequest::class);
         if ($outcome === 'rejected') {
-            $decide->reject($request->fresh(), $manager, 'Belum masuk anggaran kuartal ini');
+            $decide->reject($request->refresh(), $manager, 'Belum masuk anggaran kuartal ini');
 
             return;
         }
-        $decide->approve($request->fresh(), $manager);
+        $decide->approve($request->refresh(), $manager);
         if ($outcome === 'approved') {
             return;
         }
 
         Date::setTestNow($at(max(0, $daysAgo - 2), 10));
-        $supplier = $suppliers[mt_rand(0, count($suppliers) - 1)];
+        $supplier = $suppliers[$daysAgo % count($suppliers)];
         $order = resolve(CreatePurchaseOrder::class)->handle(
-            $request->fresh(),
+            $request->refresh(),
             $supplier,
             $this->users['andi'],
             $now->copy()->subDays($daysAgo)->addDays(10)->toDateString(),
@@ -276,9 +274,10 @@ final class ProcurementDemoSeeder extends Seeder
         }
 
         Date::setTestNow($at(max(0, $daysAgo - 6), 11));
-        $quantities = $order->lines->mapWithKeys(fn ($line): array => [
-            $line->getKey() => $outcome === 'partial' ? (int) ceil($line->quantity_ordered / 2) : $line->quantity_ordered,
-        ])->all();
+        $quantities = [];
+        foreach ($order->lines as $line) {
+            $quantities[$line->id] = $outcome === 'partial' ? intdiv($line->quantity_ordered + 1, 2) : $line->quantity_ordered;
+        }
         resolve(ReceiveGoods::class)->handle($order, $this->users['siti'], $quantities);
     }
 }

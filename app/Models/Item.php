@@ -5,21 +5,23 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Database\Factories\ItemFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Override;
 
+#[Fillable(['sku', 'name', 'category', 'unit', 'reorder_point', 'standard_cost', 'stock_on_hand', 'is_active'])]
 final class Item extends Model
 {
     /** @use HasFactory<ItemFactory> */
     use HasFactory, HasUlids;
 
-    protected $fillable = ['sku', 'name', 'category', 'unit', 'reorder_point', 'standard_cost', 'stock_on_hand', 'is_active'];
-
     /**
      * @var array<string, string>
      */
+    #[Override]
     protected $casts = [
         'reorder_point' => 'integer',
         'standard_cost' => 'integer',

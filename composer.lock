@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6e077d132cba9bd52f6b76904dae3a31",
+    "content-hash": "f83a1eecda14f9c3888c036f6089b67e",
     "packages": [
         {
             "name": "akaunting/laravel-setting",
@@ -2493,7 +2493,7 @@
                 "laravolt"
             ],
             "transport-options": {
-                "symlink": true,
+                "symlink": false,
                 "relative": true
             }
         },
@@ -2620,7 +2620,7 @@
             ],
             "description": "The Laravolt Platform.",
             "transport-options": {
-                "symlink": true,
+                "symlink": false,
                 "relative": true
             }
         },

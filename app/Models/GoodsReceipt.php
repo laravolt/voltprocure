@@ -4,20 +4,27 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\GoodsReceiptFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Override;
 
+#[Fillable(['number', 'purchase_order_id', 'received_by', 'received_at', 'note'])]
 final class GoodsReceipt extends Model
 {
-    use HasUlids;
+    /** @use HasFactory<GoodsReceiptFactory> */
+    use HasFactory;
 
-    protected $fillable = ['number', 'purchase_order_id', 'received_by', 'received_at', 'note'];
+    use HasUlids;
 
     /**
      * @var array<string, string>
      */
+    #[Override]
     protected $casts = ['received_at' => 'datetime'];
 
     /**

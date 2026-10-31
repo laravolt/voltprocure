@@ -6,23 +6,25 @@ namespace App\Models;
 
 use App\Enums\PurchaseRequestStatus;
 use Database\Factories\PurchaseRequestFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Override;
 
+#[Fillable(['number', 'department_id', 'requester_id', 'purpose', 'needed_by', 'status', 'submitted_at', 'decided_by', 'decided_at', 'decision_note'])]
 final class PurchaseRequest extends Model
 {
     /** @use HasFactory<PurchaseRequestFactory> */
     use HasFactory, HasUlids;
 
-    protected $fillable = ['number', 'department_id', 'requester_id', 'purpose', 'needed_by', 'status', 'submitted_at', 'decided_by', 'decided_at', 'decision_note'];
-
     /**
      * @var array<string, string>
      */
+    #[Override]
     protected $casts = [
         'status' => PurchaseRequestStatus::class,
         'needed_by' => 'date',

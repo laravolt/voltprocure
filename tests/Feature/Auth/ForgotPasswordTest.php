@@ -12,7 +12,7 @@ test('it can get forgot password page', function (): void {
     /** @var TestCase $test */
     $test = $this;
 
-    $test->get(route('auth::forgot.store'))
+    $test->get(route('auth::forgot.show'))
         ->assertSee('email')
         ->assertStatus(200);
 });
@@ -32,7 +32,7 @@ test('it can handle correct email', function (): void {
         ->assertSessionHas('success');
 });
 
-test('it can handle wrong email', function (): void {
+test('it returns a generic success response for unknown email', function (): void {
     /** @var TestCase $test */
     $test = $this;
 
@@ -45,7 +45,7 @@ test('it can handle wrong email', function (): void {
 
     $test->post(route('auth::forgot.store'), $payload)
         ->assertRedirect(route('auth::forgot.show'))
-        ->assertSessionHasErrors('email');
+        ->assertSessionHas('success');
 });
 
 test('it has errors if failed', function (): void {
@@ -55,7 +55,7 @@ test('it has errors if failed', function (): void {
     $test->post(route('auth::forgot.store'))->assertSessionHasErrors();
 });
 
-test('it can handle send email failure', function (): void {
+test('it returns a generic success response when reset link is throttled', function (): void {
     /** @var TestCase $test */
     $test = $this;
 
@@ -71,7 +71,7 @@ test('it can handle send email failure', function (): void {
 
     $test->post(route('auth::forgot.store'), $payload)
         ->assertRedirect(route('auth::forgot.show'))
-        ->assertSessionHas('error');
+        ->assertSessionHas('success');
 });
 
 test('it has register link', function (): void {

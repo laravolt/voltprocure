@@ -30,7 +30,7 @@ final class DecidePurchaseRequest
 
         DB::transaction(function () use ($request, $approver, $approvedQuantities, $note): void {
             foreach ($request->lines as $line) {
-                $approved = $approvedQuantities[$line->getKey()] ?? $line->quantity;
+                $approved = $approvedQuantities[$line->id] ?? $line->quantity;
 
                 if ($approved < 0 || $approved > $line->quantity) {
                     throw ValidationException::withMessages(['lines' => 'Jumlah disetujui harus antara 0 dan jumlah yang diminta.']);
@@ -58,11 +58,9 @@ final class DecidePurchaseRequest
     {
         Gate::forUser($approver)->authorize(Permission::PURCHASE_REQUEST_APPROVE);
 
-        $isManager = $request->department->manager_id === $approver->getKey();
+        $isManager = $request->department()->firstOrFail()->manager_id === $approver->getKey();
 
-        if (! $isManager && ! $approver->hasPermission('*')) {
-            throw new AuthorizationException('Hanya manajer departemen ini yang dapat memutuskan.');
-        }
+        throw_if(! $isManager && ! $approver->hasPermission('*'), AuthorizationException::class, 'Hanya manajer departemen ini yang dapat memutuskan.');
 
         if ($request->status !== PurchaseRequestStatus::Submitted) {
             throw ValidationException::withMessages(['status' => 'Permintaan ini tidak sedang menunggu persetujuan.']);

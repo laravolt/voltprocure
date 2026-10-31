@@ -4,30 +4,27 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\My;
 
+use App\Actions\My\UpdateProfile;
+use App\Http\Requests\My\UpdateProfileRequest;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
-use Laravolt\Epicentrum\Http\Requests\My\Profile\Update;
-use Laravolt\Support\Contracts\TimezoneRepository;
 
 final class ProfileController extends Controller
 {
-    public function edit(TimezoneRepository $timezone): View
+    public function edit(): View
     {
-        $user = auth()->user();
-        $timezones = $timezone->all();
-
-        return view('my.profile.edit', ['user' => $user, 'timezones' => $timezones]);
+        return view('my.profile.edit');
     }
 
-    public function update(Update $request): RedirectResponse
+    public function update(UpdateProfileRequest $request, UpdateProfile $updateProfile): RedirectResponse
     {
         /** @var User $user */
-        $user = auth()->user();
-        /** @var array<string, mixed> $validated */
+        $user = $request->user();
+        /** @var array{name: string, timezone: string} $validated */
         $validated = $request->validated();
-        $user->update($validated);
+        $updateProfile->handle($user, $validated);
 
         return back()->withSuccess(__('Profil berhasil diperbarui'));
     }

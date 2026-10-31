@@ -13,6 +13,7 @@ use App\Enums\PurchaseRequestStatus;
 use App\Enums\StockMovementType;
 use App\Models\Department;
 use App\Models\Item;
+use App\Models\PurchaseRequest;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -24,7 +25,7 @@ use Illuminate\Validation\ValidationException;
  */
 function procurementUser(array $permissions, array $attributes = []): User
 {
-    $role = app(config('laravolt.epicentrum.models.role'))->create(['name' => fake()->unique()->word()]);
+    $role = resolve(config('laravolt.epicentrum.models.role'))->create(['name' => fake()->unique()->word()]);
     $role->syncPermission($permissions);
 
     $user = User::factory()->create($attributes);
@@ -44,7 +45,7 @@ beforeEach(function (): void {
     $this->supplier = Supplier::factory()->create();
 });
 
-function draftRequest(): App\Models\PurchaseRequest
+function draftRequest(): PurchaseRequest
 {
     return resolve(CreatePurchaseRequest::class)->handle(test()->requester, [
         'purpose' => 'Ganti toner dan keyboard ruang server',

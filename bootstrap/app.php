@@ -59,7 +59,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (AuthorizationException $e, Request $request) {
-            if ($request->wantsJson()) {
+            if ($request->expectsJson()) {
                 return response()->json(['message' => $e->getMessage()], 403);
             }
 

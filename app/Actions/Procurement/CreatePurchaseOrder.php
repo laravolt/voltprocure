@@ -49,7 +49,7 @@ final readonly class CreatePurchaseOrder
             $total = 0;
 
             foreach ($request->lines()->where('approved_quantity', '>', 0)->get() as $line) {
-                $unitCost = $unitCosts[$line->getKey()] ?? $line->estimated_unit_cost;
+                $unitCost = $unitCosts[$line->id] ?? $line->estimated_unit_cost;
                 $total += $unitCost * (int) $line->approved_quantity;
 
                 $order->lines()->create([

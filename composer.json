@@ -126,7 +126,7 @@
         "type": "path",
         "url": "../avatar",
         "options": {
-            "symlink": true,
+            "symlink": false,
             "versions": {
                 "laravolt/avatar": "8.0.1"
             }
@@ -136,7 +136,7 @@
         "type": "path",
         "url": "../laravolt",
         "options": {
-            "symlink": true,
+            "symlink": false,
             "versions": {
                 "laravolt/laravolt": "8.99.0"
             }

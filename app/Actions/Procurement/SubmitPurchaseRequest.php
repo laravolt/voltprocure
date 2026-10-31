@@ -15,9 +15,7 @@ final class SubmitPurchaseRequest
 {
     public function handle(PurchaseRequest $request, User $requester): void
     {
-        if ($request->requester_id !== $requester->getKey()) {
-            throw new AuthorizationException('Hanya pemohon yang dapat mengajukan permintaan ini.');
-        }
+        throw_if($request->requester_id !== $requester->getKey(), AuthorizationException::class, 'Hanya pemohon yang dapat mengajukan permintaan ini.');
 
         if ($request->status !== PurchaseRequestStatus::Draft) {
             throw ValidationException::withMessages(['status' => 'Permintaan ini sudah diajukan.']);

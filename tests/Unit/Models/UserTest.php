@@ -18,5 +18,6 @@ test('to array', function (): void {
             'status',
             'timezone',
             'password_changed_at',
+            'department_id',
         ]);
 });

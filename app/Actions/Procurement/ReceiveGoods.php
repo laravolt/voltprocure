@@ -51,23 +51,25 @@ final readonly class ReceiveGoods
                 'note' => $note,
             ]);
 
-            foreach ($order->lines()->with('item')->lockForUpdate()->get() as $line) {
-                $quantity = $quantities[$line->getKey()] ?? 0;
+            foreach ($order->lines()->lockForUpdate()->get() as $line) {
+                $quantity = $quantities[$line->id] ?? 0;
 
                 if ($quantity === 0) {
                     continue;
                 }
 
+                $item = $line->item()->lockForUpdate()->firstOrFail();
+
                 if ($quantity > $line->outstandingQuantity()) {
                     throw ValidationException::withMessages([
-                        'lines' => sprintf('%s: maksimal %d %s lagi.', $line->item->name, $line->outstandingQuantity(), $line->item->unit),
+                        'lines' => sprintf('%s: maksimal %d %s lagi.', $item->name, $line->outstandingQuantity(), $item->unit),
                     ]);
                 }
 
                 $receipt->lines()->create(['purchase_order_line_id' => $line->getKey(), 'quantity' => $quantity]);
                 $line->increment('quantity_received', $quantity);
-                $line->item->increment('stock_on_hand', $quantity);
-                $line->item->stockMovements()->create([
+                $item->increment('stock_on_hand', $quantity);
+                $item->stockMovements()->create([
                     'quantity' => $quantity,
                     'type' => StockMovementType::Receipt,
                     'source_type' => $receipt->getMorphClass(),

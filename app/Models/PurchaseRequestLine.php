@@ -4,19 +4,26 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\PurchaseRequestLineFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Override;
 
+#[Fillable(['purchase_request_id', 'item_id', 'quantity', 'approved_quantity', 'estimated_unit_cost'])]
 final class PurchaseRequestLine extends Model
 {
-    use HasUlids;
+    /** @use HasFactory<PurchaseRequestLineFactory> */
+    use HasFactory;
 
-    protected $fillable = ['purchase_request_id', 'item_id', 'quantity', 'approved_quantity', 'estimated_unit_cost'];
+    use HasUlids;
 
     /**
      * @var array<string, string>
      */
+    #[Override]
     protected $casts = [
         'quantity' => 'integer',
         'approved_quantity' => 'integer',
