@@ -25,4 +25,17 @@ enum PurchaseOrderStatus: string
     {
         return in_array($this, [self::Issued, self::PartiallyReceived], true);
     }
+
+    /**
+     * Visual tone for the status badge; the label always travels with it.
+     */
+    public function tone(): string
+    {
+        return match ($this) {
+            self::Draft => 'neutral',
+            self::Issued => 'accent',
+            self::PartiallyReceived => 'warning',
+            self::Received => 'success',
+        };
+    }
 }

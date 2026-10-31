@@ -15,24 +15,8 @@ use App\Models\Department;
 use App\Models\Item;
 use App\Models\PurchaseRequest;
 use App\Models\Supplier;
-use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Validation\ValidationException;
-
-/**
- * @param  list<string>  $permissions
- * @param  array<string, mixed>  $attributes
- */
-function procurementUser(array $permissions, array $attributes = []): User
-{
-    $role = resolve(config('laravolt.epicentrum.models.role'))->create(['name' => fake()->unique()->word()]);
-    $role->syncPermission($permissions);
-
-    $user = User::factory()->create($attributes);
-    $user->assignRole($role);
-
-    return $user->fresh();
-}
 
 beforeEach(function (): void {
     $this->manager = procurementUser([Permission::PURCHASE_REQUEST_APPROVE]);

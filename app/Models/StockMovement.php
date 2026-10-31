@@ -47,4 +47,12 @@ final class StockMovement extends Model
     {
         return $this->morphTo();
     }
+
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

@@ -1,13 +1,68 @@
-@import "tailwindcss";
+/*
+ * VoltProcure design layer ("meja kerja rapi": tidy, certain, a little warm).
+ *
+ * Laravolt's main.min.css already ships preflight and the Preline utilities, so
+ * this build adds only theme tokens and the utilities our own views use. Both
+ * files share the document-wide `utilities` layer, and this one loads last.
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities) source(none);
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@source "../views";
+@source "../../app";
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans:
-        "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
-        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
-        "Noto Color Emoji";
+    /* Brand accent: indigo 600, replacing Laravolt's default blue. */
+    --color-accent: #4f46e5;
+    --color-accent-strong: #4338ca;
+    --color-accent-soft: #eef2ff;
+
+    /* Documents are referenced by their number; give it a voice of its own. */
+    --font-mono:
+        ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+
+/*
+ * One move repaints the whole Laravolt chrome: its views are written in
+ * gray-* and blue-*, so those scales now resolve to graphite (zinc) and the
+ * brand indigo. Nothing in vendor views needs overriding.
+ */
+@layer theme {
+    :root {
+        --color-gray-50: oklch(98.5% 0 none);
+        --color-gray-100: oklch(96.7% 0.001 286.375);
+        --color-gray-200: oklch(92% 0.004 286.32);
+        --color-gray-300: oklch(87.1% 0.006 286.286);
+        --color-gray-400: oklch(70.5% 0.015 286.067);
+        --color-gray-500: oklch(55.2% 0.016 285.938);
+        --color-gray-600: oklch(44.2% 0.017 285.786);
+        --color-gray-700: oklch(37% 0.013 285.805);
+        --color-gray-800: oklch(27.4% 0.006 286.033);
+        --color-gray-900: oklch(21% 0.006 285.885);
+        --color-gray-950: oklch(14.1% 0.005 285.823);
+        --color-blue-50: oklch(96.2% 0.018 272.314);
+        --color-blue-100: oklch(93% 0.034 272.788);
+        --color-blue-200: oklch(87% 0.065 274.039);
+        --color-blue-300: oklch(78.5% 0.115 274.713);
+        --color-blue-400: oklch(67.3% 0.182 276.935);
+        --color-blue-500: oklch(58.5% 0.233 277.117);
+        --color-blue-600: oklch(51.1% 0.262 276.966);
+        --color-blue-700: oklch(45.7% 0.24 277.023);
+        --color-blue-800: oklch(39.8% 0.195 277.366);
+        --color-blue-900: oklch(35.9% 0.144 278.697);
+        --color-blue-950: oklch(25.7% 0.09 281.288);
+    }
+}
+
+@layer components {
+    /* Signature: every document number is set in tabular mono, e.g. PR-2026-0187. */
+    .doc-no {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+    }
 }

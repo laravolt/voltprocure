@@ -41,7 +41,7 @@ test('it can handle correct login', function (): void {
 
     $response->assertRedirect(AppServiceProvider::HOME);
 
-    $test->get(AppServiceProvider::HOME)->assertSee('Home');
+    $test->get(AppServiceProvider::HOME)->assertSee('Ringkasan');
 });
 
 test('it can handle wrong login', function (): void {

@@ -57,6 +57,8 @@ final class ProcurementDemoSeeder extends Seeder
             [13, 'GDG', 'fajar', 'Palet plastik tambahan', ['ITM-0305' => 15], 'ordered'],
             [11, 'OPS', 'yoga', 'Spidol dan kertas flipchart', ['ITM-0208' => 24, 'ITM-0209' => 6], 'partial'],
             [8, 'KEU', 'maya', 'Toner printer keuangan', ['ITM-0101' => 4], 'approved'],
+            [7, 'TI', 'dewi', 'Kabel jaringan ruang rapat baru', ['ITM-0106' => 16], 'ordered'],
+            [7, 'OPS', 'yoga', 'Kopi dan air mineral November', ['ITM-0501' => 25, 'ITM-0502' => 8], 'partial'],
             [6, 'TI', 'dewi', 'Lisensi antivirus perpanjangan', ['ITM-0109' => 25], 'approved'],
             [5, 'GDG', 'fajar', 'Lakban dan cutter', ['ITM-0306' => 48, 'ITM-0307' => 12], 'submitted'],
             [3, 'OPS', 'yoga', 'Tisu dan sabun toilet', ['ITM-0503' => 40, 'ITM-0504' => 20], 'submitted'],
@@ -267,7 +269,8 @@ final class ProcurementDemoSeeder extends Seeder
             $request->refresh(),
             $supplier,
             $this->users['andi'],
-            $now->copy()->subDays($daysAgo)->addDays(10)->toDateString(),
+            // Lead time grows with order size class, so only the oldest open orders run late.
+            $now->copy()->subDays(max(0, $daysAgo - 2))->addDays($outcome === 'ordered' ? 18 : 14)->toDateString(),
         );
         if ($outcome === 'ordered') {
             return;

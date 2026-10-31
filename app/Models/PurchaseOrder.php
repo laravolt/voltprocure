@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Date;
 use Override;
 
 #[Fillable(['number', 'purchase_request_id', 'supplier_id', 'buyer_id', 'status', 'expected_at', 'issued_at', 'total'])]
@@ -71,5 +72,22 @@ final class PurchaseOrder extends Model
     public function goodsReceipts(): HasMany
     {
         return $this->hasMany(GoodsReceipt::class);
+    }
+
+    /**
+     * Value of the goods still to arrive.
+     */
+    public function outstandingValue(): int
+    {
+        return (int) $this->lines->sum(
+            fn (PurchaseOrderLine $line): int => $line->outstandingQuantity() * $line->unit_cost,
+        );
+    }
+
+    public function isOverdue(): bool
+    {
+        return $this->status->isOpen()
+            && $this->expected_at !== null
+            && $this->expected_at->lt(Date::today());
     }
 }

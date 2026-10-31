@@ -22,4 +22,18 @@ enum PurchaseRequestStatus: string
             self::Ordered => 'Sudah dipesan',
         };
     }
+
+    /**
+     * Visual tone for the status badge; the label always travels with it.
+     */
+    public function tone(): string
+    {
+        return match ($this) {
+            self::Draft => 'neutral',
+            self::Submitted => 'warning',
+            self::Approved => 'accent',
+            self::Rejected => 'danger',
+            self::Ordered => 'success',
+        };
+    }
 }
