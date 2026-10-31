@@ -38,7 +38,7 @@
                                 <span class="sr-only">{{ $low ? 'Di bawah' : 'Di atas' }} titik pesan ulang {{ $item->reorder_point }}</span>
                             @else
                                 {{-- Bought per request, not kept in stock: a bar would read as full. --}}
-                                <span class="text-xs text-zinc-500 dark:text-zinc-400">Dibeli sesuai permintaan</span>
+                                <span class="whitespace-nowrap text-xs text-zinc-500 dark:text-zinc-400">Tidak distok</span>
                             @endif
                         </td>
                         <td class="hidden px-5 py-2.5 text-right lg:table-cell"><x-money :amount="$item->standard_cost" /></td>

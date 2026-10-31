@@ -75,7 +75,7 @@ it('does not draw a stock bar for items that are not kept in stock', function ()
 
     $this->actingAs($this->buyer)->get(route('items.index'))
         ->assertOk()
-        ->assertSee('Dibeli sesuai permintaan');
+        ->assertSee('Tidak distok');
 });
 
 it('writes dates in Indonesian even after the date locale was reset', function (): void {
