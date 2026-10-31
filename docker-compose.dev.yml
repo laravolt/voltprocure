@@ -1,16 +1,13 @@
-# Laravolt v7 starter-kit — development stack.
-# Based on laravoltdev/image (ServerSideUp PHP + FrankenPHP + Laravolt extensions).
+# VoltProcure — development stack.
+# Pulls laravoltdev/image:php8.5-dev (FrankenPHP + Laravolt extensions + Bun + Xdebug); nothing is built locally.
 #
 # Run:
-#   docker compose -f docker-compose.dev.yml up --build
+#   docker compose -f docker-compose.dev.yml up -d
 # Then open http://localhost:8080 ; Vite dev server on http://localhost:5173.
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: docker/php/dev.Dockerfile
-    image: laravolt-starter-kit:dev
+    image: laravoltdev/image:php8.5-dev
     container_name: laravolt-dev
     ports:
       - "8080:8080"

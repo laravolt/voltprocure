@@ -2,16 +2,20 @@
 
 | Stack | Purpose | Image | Command |
 | --- | --- | --- | --- |
-| `docker-compose.dev.yml` | Mounted-source dev sandbox | `laravoltdev/image:php8.5-frankenphp-debian` + Bun | `docker compose -f docker-compose.dev.yml up --build` |
+| `docker-compose.dev.yml` | Mounted-source dev sandbox | `laravoltdev/image:php8.5-dev` (pulled, not built) | `docker compose -f docker-compose.dev.yml up -d` |
 | `docker-compose.prod.yml` | Baked demo/production: Laravel Octane on FrankenPHP, worker mode | `dunglas/frankenphp:1.13.1-php8.5-trixie` | `docker compose -f docker-compose.prod.yml up --build -d` |
 
 ## Development
 
-The dev image mounts your working tree onto `/app` and runs `php artisan serve` on `:8000`. On first boot it creates the SQLite database and installs Composer packages into the mounted vendor directory. Vite is reachable on `:5173`: run `bun run dev` inside the container, or enable the optional `vite` sidecar in the compose file.
+The dev stack pulls `laravoltdev/image:php8.5-dev` (Bun and Xdebug included, amd64 and arm64) and mounts the working tree, so nothing is built locally. FrankenPHP serves the app on `:8080` and Vite on `:5173`.
 
 ```bash
-docker compose -f docker-compose.dev.yml up --build
-# Open http://localhost:8000
+docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml exec app composer install
+docker compose -f docker-compose.dev.yml exec app php artisan migrate --seed
+docker compose -f docker-compose.dev.yml exec app bun install
+docker compose -f docker-compose.dev.yml exec app bun run dev
+# Open http://localhost:8080
 ```
 
 ## Production (Octane + FrankenPHP)
