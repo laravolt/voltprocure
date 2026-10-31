@@ -70,6 +70,14 @@ it('shows procurement the approved requests that still need an order', function 
         ->assertSee(route('purchase-orders.create', ['request' => $request->getKey()]), false);
 });
 
+it('does not draw a stock bar for items that are not kept in stock', function (): void {
+    Item::factory()->create(['sku' => 'ITM-0401', 'name' => 'Kursi tunggu', 'stock_on_hand' => 0, 'reorder_point' => 0]);
+
+    $this->actingAs($this->buyer)->get(route('items.index'))
+        ->assertOk()
+        ->assertSee('Dibeli sesuai permintaan');
+});
+
 it('writes dates in Indonesian even after the date locale was reset', function (): void {
     // What Octane does at the start of every request.
     Date::setLocale('en');
