@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8d96e9ff93dc5b655e57b8b8c21effda",
+    "content-hash": "1a6e105515e91ec21317a553928bf553",
     "packages": [
         {
             "name": "akaunting/laravel-setting",
@@ -2599,16 +2599,16 @@
         },
         {
             "name": "laravolt/avatar",
-            "version": "dev-fix/cache-base64-as-string",
+            "version": "8.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravolt/avatar.git",
-                "reference": "2767b2ce11ac0bbfed95e5e0cf7dc06505246e72"
+                "reference": "2b4cbb8dc3f7b3995e1a128b073f4d135826ed7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravolt/avatar/zipball/2767b2ce11ac0bbfed95e5e0cf7dc06505246e72",
-                "reference": "2767b2ce11ac0bbfed95e5e0cf7dc06505246e72",
+                "url": "https://api.github.com/repos/laravolt/avatar/zipball/2b4cbb8dc3f7b3995e1a128b073f4d135826ed7b",
+                "reference": "2b4cbb8dc3f7b3995e1a128b073f4d135826ed7b",
                 "shasum": ""
             },
             "require": {
@@ -2630,16 +2630,16 @@
             },
             "type": "library",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "6.0-dev"
-                },
                 "laravel": {
-                    "providers": [
-                        "Laravolt\\Avatar\\ServiceProvider"
-                    ],
                     "aliases": {
                         "Avatar": "Laravolt\\Avatar\\Facade"
-                    }
+                    },
+                    "providers": [
+                        "Laravolt\\Avatar\\ServiceProvider"
+                    ]
+                },
+                "branch-alias": {
+                    "dev-master": "6.0-dev"
                 }
             },
             "autoload": {
@@ -2647,16 +2647,7 @@
                     "Laravolt\\Avatar\\": "src"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Laravolt\\Avatar\\Test\\": "tests"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "phpunit"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -2677,37 +2668,37 @@
                 "laravolt"
             ],
             "support": {
-                "source": "https://github.com/laravolt/avatar/tree/fix/cache-base64-as-string",
-                "issues": "https://github.com/laravolt/avatar/issues"
+                "issues": "https://github.com/laravolt/avatar/issues",
+                "source": "https://github.com/laravolt/avatar/tree/8.0.1"
             },
             "funding": [
                 {
-                    "type": "patreon",
-                    "url": "https://www.patreon.com/uyab"
+                    "url": "https://paypal.me/bayuhendra",
+                    "type": "custom"
                 },
                 {
-                    "type": "ko_fi",
-                    "url": "https://ko-fi.com/bayuhendra"
+                    "url": "https://ko-fi.com/bayuhendra",
+                    "type": "ko_fi"
                 },
                 {
-                    "type": "custom",
-                    "url": "https://paypal.me/bayuhendra"
+                    "url": "https://www.patreon.com/uyab",
+                    "type": "patreon"
                 }
             ],
-            "time": "2026-10-31T05:46:48+00:00"
+            "time": "2026-10-31T12:23:38+00:00"
         },
         {
             "name": "laravolt/laravolt",
-            "version": "dev-chore/preline-5-tailwind-4.3",
+            "version": "v8.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravolt/laravolt.git",
-                "reference": "63436ac14fb6dd64dccf0dc890682fb0fc7eefa8"
+                "reference": "8c34062f4c9b6c06dee35d04450f3dc9060358f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/63436ac14fb6dd64dccf0dc890682fb0fc7eefa8",
-                "reference": "63436ac14fb6dd64dccf0dc890682fb0fc7eefa8",
+                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/8c34062f4c9b6c06dee35d04450f3dc9060358f3",
+                "reference": "8c34062f4c9b6c06dee35d04450f3dc9060358f3",
                 "shasum": ""
             },
             "require": {
@@ -2730,7 +2721,7 @@
                 "illuminate/database": "^12.68|^13.29",
                 "illuminate/support": "^12.68|^13.29",
                 "kirschbaum-development/eloquent-power-joins": "^4.3",
-                "laravolt/avatar": "^8.0",
+                "laravolt/avatar": "^8.0.1",
                 "lavary/laravel-menu": "^1.8.4",
                 "livewire/blaze": "^1.0",
                 "livewire/livewire": "^4.4",
@@ -2761,6 +2752,11 @@
             "type": "library",
             "extra": {
                 "laravel": {
+                    "aliases": {
+                        "Form": "Laravolt\\SemanticForm\\Facade",
+                        "Asset": "Laravolt\\Asset\\AssetFacade",
+                        "Suitable": "Laravolt\\Suitable\\Facade"
+                    },
                     "providers": [
                         "Laravolt\\AutoCrud\\AutoCrudServiceProvider",
                         "Laravolt\\Asset\\AssetServiceProvider",
@@ -2777,12 +2773,7 @@
                         "Laravolt\\SemanticForm\\ServiceProvider",
                         "Laravolt\\Workflow\\WorkflowServiceProvider",
                         "Laravolt\\Mailkeeper\\ServiceProvider"
-                    ],
-                    "aliases": {
-                        "Asset": "Laravolt\\Asset\\AssetFacade",
-                        "Suitable": "Laravolt\\Suitable\\Facade",
-                        "Form": "Laravolt\\SemanticForm\\Facade"
-                    }
+                    ]
                 }
             },
             "autoload": {
@@ -2791,44 +2782,33 @@
                     "packages/semantic-form/src/helpers.php"
                 ],
                 "psr-4": {
-                    "Laravolt\\Asset\\": "packages/asset/src",
-                    "Laravolt\\AutoCrud\\": "packages/auto-crud/src",
-                    "Laravolt\\DatabaseMonitor\\": "packages/database-monitor/src",
-                    "Laravolt\\FileManager\\": "packages/file-manager/src",
-                    "Laravolt\\Lookup\\": "packages/lookup/src",
-                    "Laravolt\\Mailkeeper\\": "packages/mailkeeper/src",
-                    "Laravolt\\Media\\": "packages/media/src",
+                    "Laravolt\\": "src",
                     "Laravolt\\Pint\\": "packages/pint",
-                    "Laravolt\\PrelineForm\\": "packages/preline-form/src",
-                    "Laravolt\\SemanticForm\\": "packages/semantic-form/src",
-                    "Laravolt\\Suitable\\": "packages/suitable/src",
+                    "Laravolt\\Asset\\": "packages/asset/src",
+                    "Laravolt\\Media\\": "packages/media/src",
+                    "Laravolt\\Lookup\\": "packages/lookup/src",
                     "Laravolt\\Support\\": "packages/support/src",
-                    "Laravolt\\Thunderclap\\": "packages/thunderclap/src",
+                    "Laravolt\\AutoCrud\\": "packages/auto-crud/src",
+                    "Laravolt\\Suitable\\": "packages/suitable/src",
                     "Laravolt\\Workflow\\": "packages/workflow/src",
-                    "Laravolt\\": "src"
+                    "Laravolt\\Mailkeeper\\": "packages/mailkeeper/src",
+                    "Laravolt\\FileManager\\": "packages/file-manager/src",
+                    "Laravolt\\PrelineForm\\": "packages/preline-form/src",
+                    "Laravolt\\Thunderclap\\": "packages/thunderclap/src",
+                    "Laravolt\\SemanticForm\\": "packages/semantic-form/src",
+                    "Laravolt\\DatabaseMonitor\\": "packages/database-monitor/src"
                 }
             },
-            "autoload-dev": {
-                "classmap": [],
-                "psr-4": {
-                    "Laravolt\\SemanticForm\\Test\\": "packages/semantic-form/tests",
-                    "Laravolt\\Tests\\": "tests/"
-                }
-            },
-            "scripts": {
-                "post-autoload-dump": [
-                    "Laravolt\\Platform\\Scripts\\ComposerScripts::postAutoloadDump"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "description": "The Laravolt Platform.",
             "support": {
-                "source": "https://github.com/laravolt/laravolt/tree/chore/preline-5-tailwind-4.3",
-                "issues": "https://github.com/laravolt/laravolt/issues"
+                "issues": "https://github.com/laravolt/laravolt/issues",
+                "source": "https://github.com/laravolt/laravolt/tree/v8.1.0"
             },
-            "time": "2026-10-31T10:08:08+00:00"
+            "time": "2026-10-31T12:49:39+00:00"
         },
         {
             "name": "lavary/laravel-menu",
@@ -14408,25 +14388,9 @@
             "time": "2026-10-05T23:14:19+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "laravolt/avatar",
-            "version": "dev-fix/cache-base64-as-string",
-            "alias": "8.0.1",
-            "alias_normalized": "8.0.1.0"
-        },
-        {
-            "package": "laravolt/laravolt",
-            "version": "dev-chore/preline-5-tailwind-4.3",
-            "alias": "8.99.0",
-            "alias_normalized": "8.99.0.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "laravolt/avatar": 20,
-        "laravolt/laravolt": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
