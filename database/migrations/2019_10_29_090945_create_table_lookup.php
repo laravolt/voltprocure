@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('platform_lookup', function (Blueprint $table): void {
+            $table->bigIncrements('id');
+            $table->string('category');
+            $table->string('parent_key')->nullable();
+            $table->string('lookup_key');
+            $table->string('lookup_value');
+            $table->json('meta')->nullable();
+            $table->timestamps();
+
+            $table->unique(['category', 'lookup_key']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::drop('platform_lookup');
+    }
+};

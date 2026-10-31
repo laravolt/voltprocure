@@ -1,0 +1,21 @@
+{
+    "agents": [
+        "claude_code",
+        "cursor",
+        "opencode",
+        "copilot"
+    ],
+    "cloud": false,
+    "guidelines": true,
+    "herd_mcp": false,
+    "mcp": true,
+    "nightwatch_mcp": false,
+    "sail": false,
+    "skills": [
+        "infer-conventions",
+        "laravel-best-practices",
+        "octane-development",
+        "pest-testing",
+        "tailwindcss-development"
+    ]
+}

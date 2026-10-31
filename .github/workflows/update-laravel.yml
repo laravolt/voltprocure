@@ -1,0 +1,66 @@
+name: update-laravel
+
+# Menjaga repo selalu di rilis Laravel (dan dependensi lain) terbaru:
+# tiap Senin 03:00 UTC menjalankan `composer update --with-all-dependencies`
+# + `composer bump`, lalu membuka PR bila ada perubahan. CI tests.yml
+# memvalidasi PR-nya. Bisa dipicu manual dari tab Actions.
+#
+# Catatan: dipakai alih-alih Dependabot karena repo ini fork (Dependabot
+# version-updates nonaktif di fork dan hanya bisa dinyalakan lewat UI).
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # token: PAT opsional (secret DEPS_PAT). Dengan GITHUB_TOKEN bawaan,
+      # push branch PR tidak memicu workflow tests (anti-loop GitHub) sehingga
+      # PR deps tampil tanpa checks; set DEPS_PAT (repo scope) untuk
+      # menghilangkan keharusan close/reopen PR tiap minggu.
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.DEPS_PAT || github.token }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          tools: composer:v2
+          coverage: none
+
+      # post-update-cmd repo menjalankan `bunx npm-check-updates -u`
+      # (script update:requirements) — butuh bun di PATH. Hasil bump JS-nya
+      # dikembalikan di bawah (di luar tujuan workflow ini dan berisiko
+      # merusak build); yang di-PR hanya composer.json/lock.
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Update Dependencies
+        run: |
+          composer update --no-interaction --prefer-dist --no-progress --with-all-dependencies
+          composer bump
+          git checkout -- package.json bun.lock 2>/dev/null || true
+          echo "LARAVEL=$(composer show laravel/framework --no-interaction | awk '/^versions/ {print $NF}')" >> "$GITHUB_ENV"
+
+      - name: Open PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.DEPS_PAT || github.token }}
+          branch: deps/laravel-auto
+          title: "chore(deps): Laravel ${{ env.LARAVEL }} + dependensi terbaru (otomatis)"
+          commit-message: "chore(deps): update ke Laravel ${{ env.LARAVEL }} + dependensi terbaru (otomatis)"
+          body: |
+            PR otomatis dari workflow `update-laravel` (jadwal mingguan).
+            `composer update --with-all-dependencies` + `composer bump`.
+            Merge bila CI hijau.
+          add-paths: |
+            composer.json
+            composer.lock
+          delete-branch: true

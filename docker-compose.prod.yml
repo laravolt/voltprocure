@@ -1,0 +1,56 @@
+# Laravolt v7 starter-kit — production stack.
+# Based on laravoltdev/image (ServerSideUp PHP + FrankenPHP + Laravolt extensions).
+# Baked vendor + Vite build. SQLite default for portability.
+#
+# Build & run:
+#   docker compose -f docker-compose.prod.yml up --build -d
+# Then open http://localhost:8090
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/frankenphp/prod.Dockerfile
+    image: laravolt-starter-kit:prod
+    container_name: laravolt-prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      AUTORUN_ENABLED: "true"
+      AUTORUN_LARAVOLT_LINK: "false"
+    ports:
+      - "127.0.0.1:8090:8080"
+    volumes:
+      - laravolt-storage:/var/www/html/storage
+      - laravolt-bootstrap-cache:/var/www/html/bootstrap/cache
+      - laravolt-database:/var/www/html/database
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/up >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  # Optional Postgres — set DB_CONNECTION=pgsql and DB_* variables in .env.
+  #
+  # postgres:
+  #   image: postgres:16-alpine
+  #   container_name: laravolt-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB: laravolt
+  #     POSTGRES_USER: laravolt
+  #     POSTGRES_PASSWORD: changeme
+  #   volumes:
+  #     - laravolt-pgdata:/var/lib/postgresql/data
+  #   ports:
+  #     - "127.0.0.1:5432:5432"
+
+volumes:
+  laravolt-storage:
+  laravolt-bootstrap-cache:
+  laravolt-database:
+  # laravolt-pgdata:
