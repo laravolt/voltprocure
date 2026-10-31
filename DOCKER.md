@@ -64,6 +64,8 @@ These numbers come from a short run on a busy machine, so read them as orders of
 
 ## Notes
 
+- `APP_FORCE_HTTPS` (default `true`) makes production generate https URLs. `.env.docker.example` sets it to `false` for plain http on localhost; set it to `true` with an https `APP_URL` when a TLS proxy sits in front.
+
 - PHP 8.5 is required (matches `composer.json`).
 - To move off SQLite, set `DB_CONNECTION` and the `DB_*` variables in `.env.docker` and add a database service. The code does not depend on SQLite.
 - The prod stack bakes everything into the image. Only `database/data` and `storage` are volumes.

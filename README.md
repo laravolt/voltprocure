@@ -13,6 +13,14 @@ flowchart LR
     GRN --> S[(Stock + movement log)]
 ```
 
+![Dashboard: requests waiting for approval, open orders, low stock, monthly spend and weekly order value](docs/screenshots/dashboard.png)
+
+| Approving a request | Stock | On a phone |
+|---|---|---|
+| ![A manager approves a purchase request line by line](docs/screenshots/approval.png) | ![Stock list with reorder-point bars](docs/screenshots/stock.png) | ![The dashboard at 390px wide](docs/screenshots/dashboard-phone.png) |
+
+Screenshots come from the production Docker image in CI (`.github/workflows/docker.yml`).
+
 ## What is in it
 
 | Page | What it does |
