@@ -54,6 +54,20 @@ jobs:
             done
           done
 
+      - name: Capture screenshots
+        run: |
+          cd .github/screenshots
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund playwright@1.59.1
+          npx playwright install --with-deps chromium
+          APP_URL=http://127.0.0.1:8090 node capture.mjs "$GITHUB_WORKSPACE/screenshots"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: screenshots
+
       - name: Container logs
         if: always()
         run: docker logs app 2>&1 | tail -100
