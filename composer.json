@@ -11,27 +11,29 @@
     "license": "MIT",
     "require": {
         "php": "^8.5.0",
-        "laravel/framework": "^13.29",
-        "laravel/tinker": "^3.0",
-        "laravolt/laravolt": "^8.0",
-        "livewire/livewire": "^4.4.1",
+        "laravel/framework": "^13.39",
+        "laravel/octane": "^2.22",
+        "laravel/tinker": "^3.0.2",
+        "laravolt/avatar": "dev-fix/cache-base64-as-string as 8.0.1",
+        "laravolt/laravolt": "dev-chore/preline-5-tailwind-4.3 as 8.99.0",
+        "livewire/livewire": "^4.4.8",
         "nunomaduro/essentials": "^1.2.0"
     },
     "require-dev": {
-        "driftingly/rector-laravel": "^2.5.0",
+        "driftingly/rector-laravel": "^2.7.3",
         "fakerphp/faker": "^1.24.1",
-        "larastan/larastan": "^3.10.0",
-        "laravel/boost": "^2.5.5",
+        "larastan/larastan": "^3.13.2",
+        "laravel/boost": "^2.10.4",
         "laravel/pail": "^1.2.7",
-        "laravel/pint": "^1.30.5",
+        "laravel/pint": "^1.32.1",
         "mockery/mockery": "^1.6.15",
         "nunomaduro/collision": "^8.9.5",
         "pestphp/pest": "^4.7.8",
         "pestphp/pest-plugin-browser": "^4.3.1",
         "pestphp/pest-plugin-laravel": "^4.1.0",
         "pestphp/pest-plugin-type-coverage": "^4.0.4",
-        "rector/rector": "^2.6.3",
-        "spaze/phpstan-disallowed-calls": "^4.14"
+        "rector/rector": "^2.8.3",
+        "spaze/phpstan-disallowed-calls": "^4.15"
     },
     "autoload": {
         "psr-4": {
@@ -121,25 +123,14 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "repositories": [{
-        "name": "avatar",
-        "type": "path",
-        "url": "../avatar",
-        "options": {
-            "symlink": false,
-            "versions": {
-                "laravolt/avatar": "8.0.1"
-            }
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/laravolt/laravolt"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/laravolt/avatar"
         }
-    },{
-        "name": "laravolt",
-        "type": "path",
-        "url": "../laravolt",
-        "options": {
-            "symlink": false,
-            "versions": {
-                "laravolt/laravolt": "8.99.0"
-            }
-        }
-    }]
+    ]
 }

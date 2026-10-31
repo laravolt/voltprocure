@@ -1,56 +1,43 @@
-# Laravolt v7 starter-kit — production stack.
-# Based on laravoltdev/image (ServerSideUp PHP + FrankenPHP + Laravolt extensions).
-# Baked vendor + Vite build. SQLite default for portability.
+# VoltProcure production demo: Laravel Octane on FrankenPHP (worker mode).
 #
-# Build & run:
-#   docker compose -f docker-compose.prod.yml up --build -d
-# Then open http://localhost:8090
+#   cp .env.docker.example .env.docker   # then set APP_KEY and APP_URL
+#   docker compose -f docker-compose.prod.yml up -d --build
+#   open http://localhost:8090
+#
+# One image, two roles: `app` serves HTTP, `scheduler` runs the nightly demo
+# reset. The host port binds to 127.0.0.1 so a reverse proxy can sit in front.
+
+x-app: &app
+  build:
+    context: .
+    dockerfile: docker/frankenphp/prod.Dockerfile
+  image: voltprocure:prod
+  env_file: .env.docker
+  environment:
+    DB_JOURNAL_MODE: wal
+    DB_SYNCHRONOUS: normal
+    DB_BUSY_TIMEOUT: 5000
+    DB_TRANSACTION_MODE: IMMEDIATE
+  volumes:
+    - voltprocure-database:/app/database/data
+    - voltprocure-storage:/app/storage
+  restart: unless-stopped
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: docker/frankenphp/prod.Dockerfile
-    image: laravolt-starter-kit:prod
-    container_name: laravolt-prod
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
-      AUTORUN_ENABLED: "true"
-      AUTORUN_LARAVOLT_LINK: "false"
+    <<: *app
     ports:
-      - "127.0.0.1:8090:8080"
-    volumes:
-      - laravolt-storage:/var/www/html/storage
-      - laravolt-bootstrap-cache:/var/www/html/bootstrap/cache
-      - laravolt-database:/var/www/html/database
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/up >/dev/null || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 60s
+      - "127.0.0.1:${VOLTPROCURE_PORT:-8090}:8080"
 
-  # Optional Postgres — set DB_CONNECTION=pgsql and DB_* variables in .env.
-  #
-  # postgres:
-  #   image: postgres:16-alpine
-  #   container_name: laravolt-postgres
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_DB: laravolt
-  #     POSTGRES_USER: laravolt
-  #     POSTGRES_PASSWORD: changeme
-  #   volumes:
-  #     - laravolt-pgdata:/var/lib/postgresql/data
-  #   ports:
-  #     - "127.0.0.1:5432:5432"
+  scheduler:
+    <<: *app
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      disable: true
 
 volumes:
-  laravolt-storage:
-  laravolt-bootstrap-cache:
-  laravolt-database:
-  # laravolt-pgdata:
+  voltprocure-database:
+  voltprocure-storage:

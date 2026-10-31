@@ -27,3 +27,9 @@ Homestead.yaml
 /pestphp-execution-result.xml
 /tests/Browser/Screenshots/ImageDiffView
 laravolt-starter-kit/
+/.env.docker
+
+# Laravel Octane (FrankenPHP)
+**/caddy
+/frankenphp
+/public/frankenphp-worker.php
