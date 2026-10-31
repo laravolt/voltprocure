@@ -29,7 +29,7 @@ jobs:
           key="base64:$(openssl rand -base64 32)"
           docker run -d --name app -p 8090:8080 \
             -e APP_KEY="$key" -e APP_ENV=production -e APP_DEBUG=false -e APP_URL=http://127.0.0.1:8090 \
-            -e APP_DEMO=true -e SESSION_DRIVER=cookie -e CACHE_STORE=file -e OCTANE_WORKERS=2 \
+            -e APP_DEMO=true -e APP_FORCE_HTTPS=false -e SESSION_DRIVER=cookie -e CACHE_STORE=file -e OCTANE_WORKERS=2 \
             voltprocure:ci
           for i in $(seq 1 60); do
             curl -sf -o /dev/null http://127.0.0.1:8090/up && break
@@ -43,8 +43,10 @@ jobs:
           base=http://127.0.0.1:8090
           token=$(curl -s -c "$jar" -b "$jar" "$base/auth/login" | grep -o '<input[^>]*_token[^>]*>' | grep -o 'value="[^"]*"' | head -1 | cut -d'"' -f2)
           [ -n "$token" ] || { echo "no CSRF token on the login page"; exit 1; }
-          curl -s -o /dev/null -c "$jar" -b "$jar" -X POST "$base/auth/login" \
-            --data-urlencode "_token=$token" --data-urlencode "email=andi@voltprocure.test" --data-urlencode "password=password"
+          location=$(curl -s -o /dev/null -w '%{redirect_url}' -c "$jar" -b "$jar" -X POST "$base/auth/login" \
+            --data-urlencode "_token=$token" --data-urlencode "email=andi@voltprocure.test" --data-urlencode "password=password")
+          echo "login redirects to $location"
+          case "$location" in "$base"/*) ;; *) echo "login must redirect within $base"; exit 1 ;; esac
           # Twice: the second request is the one that used to fail under Octane with a persistent cache.
           for round in 1 2; do
             for path in /home /purchase-requests /purchase-orders /items /suppliers; do
