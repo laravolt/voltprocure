@@ -35,7 +35,7 @@ for (const [size, viewport] of Object.entries(viewports)) {
 
     // The first open purchase request, as its approver sees it.
     if (run.user === 'bagus') {
-      const link = page.locator('a[href*="/purchase-requests/"]').first();
+      const link = page.locator('a[href*="/purchase-requests/"]:not([href$="/create"])').first();
       if (await link.count()) {
         await link.click();
         await page.waitForLoadState('networkidle');

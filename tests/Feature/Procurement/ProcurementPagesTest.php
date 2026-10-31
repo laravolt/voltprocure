@@ -14,6 +14,7 @@ use App\Models\Item;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\Supplier;
+use Illuminate\Support\Facades\Date;
 
 beforeEach(function (): void {
     $this->withoutVite();
@@ -67,6 +68,16 @@ it('shows procurement the approved requests that still need an order', function 
         ->assertOk()
         ->assertSee('Buat PO')
         ->assertSee(route('purchase-orders.create', ['request' => $request->getKey()]), false);
+});
+
+it('writes dates in Indonesian even after the date locale was reset', function (): void {
+    // What Octane does at the start of every request.
+    Date::setLocale('en');
+    $this->travelTo(Date::parse('2026-10-31 20:00'));
+
+    $this->actingAs($this->requester)->get(route('home'))
+        ->assertOk()
+        ->assertSee('Sabtu, 31 Oktober 2026');
 });
 
 it('tells a person with nothing to do that their desk is clear', function (): void {
