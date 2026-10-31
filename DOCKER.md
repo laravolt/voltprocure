@@ -57,10 +57,10 @@ These numbers come from a short run on a busy machine, so read them as orders of
 ### Octane caveats
 
 - **Do not keep request state in singletons or static properties.** Workers live across requests. The app follows this rule.
-- **Needs a Laravolt release with the sidebar fix.**
+- **Needs laravolt/laravolt v8.0.1 or later.**
   - Before the fix, Laravolt's sidebar appended the whole menu again on every request under Octane, so latency grew without bound (7 s, then 26 s, within ~100 requests).
   - In production it also cached one user's menu for everyone. On Laravel 13 that cached object cannot be restored, so every page after the first returns 500 with any persistent cache.
-  - The fix (branch `fix/sidebar-menu-octane` in laravolt/laravolt) was verified with this stack: latency stayed flat over ~1,000 requests and each role saw its own menu. Do not deploy this image until that fix ships.
+  - The fix ([#476](https://github.com/laravolt/laravolt/pull/476), released in v8.0.1) was verified with this stack: latency stayed flat over ~1,000 requests and each role saw its own menu.
 
 ## Notes
 

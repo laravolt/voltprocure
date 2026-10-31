@@ -77,7 +77,7 @@ In a short run on a shared 2-vCPU host with 2 workers, the dashboard served ~50 
 - how the image is built;
 - the performance settings (OPcache JIT, SQLite WAL, cookie sessions);
 - the tuning knobs `OCTANE_WORKERS` and `OCTANE_MAX_REQUESTS`;
-- the Laravolt fix this setup depends on.
+- the Laravolt version this setup needs.
 
 ## Design
 
@@ -107,10 +107,10 @@ VoltProcure currently tracks two unreleased fixes through VCS branches in `compo
 
 | Package | Branch | Why |
 |---|---|---|
-| `laravolt/laravolt` | `chore/preline-5-tailwind-4.3` ([#474](https://github.com/laravolt/laravolt/pull/474)) | Preline 5 and Tailwind 4.3 assets |
+| `laravolt/laravolt` | `chore/preline-5-tailwind-4.3` ([#474](https://github.com/laravolt/laravolt/pull/474)) | Preline 5 and Tailwind 4.3 assets. The branch already includes the Octane sidebar fix released in [v8.0.1](https://github.com/laravolt/laravolt/releases/tag/v8.0.1) |
 | `laravolt/avatar` | `fix/cache-base64-as-string` ([#210](https://github.com/laravolt/avatar/pull/210)) | Authenticated pages return 500 with a persistent cache on Laravel 13 |
 
-Running under Octane also needs a laravolt/laravolt fix that is not yet in either branch: `fix/sidebar-menu-octane`. Without it, the sidebar menu grows on every request, and in production every page after the first returns 500. See [DOCKER.md](DOCKER.md#octane-caveats).
+Running under Octane needs laravolt/laravolt v8.0.1 or later (or the branch above). Older versions grow the sidebar on every request, and in production every page after the first returns 500. See [DOCKER.md](DOCKER.md#octane-caveats).
 
 Once both are released, replace them with normal version constraints and drop the `repositories` entries.
 

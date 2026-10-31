@@ -2702,12 +2702,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravolt/laravolt.git",
-                "reference": "966b26579b57292887bd202d4e75b26d8d90f433"
+                "reference": "63436ac14fb6dd64dccf0dc890682fb0fc7eefa8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/966b26579b57292887bd202d4e75b26d8d90f433",
-                "reference": "966b26579b57292887bd202d4e75b26d8d90f433",
+                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/63436ac14fb6dd64dccf0dc890682fb0fc7eefa8",
+                "reference": "63436ac14fb6dd64dccf0dc890682fb0fc7eefa8",
                 "shasum": ""
             },
             "require": {
@@ -2828,7 +2828,7 @@
                 "source": "https://github.com/laravolt/laravolt/tree/chore/preline-5-tailwind-4.3",
                 "issues": "https://github.com/laravolt/laravolt/issues"
             },
-            "time": "2026-10-31T06:06:21+00:00"
+            "time": "2026-10-31T10:08:08+00:00"
         },
         {
             "name": "lavary/laravel-menu",
