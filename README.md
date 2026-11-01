@@ -79,7 +79,7 @@ Open http://localhost:8090.
 - **Nightly reset:** with `APP_DEMO=true`, the `scheduler` service wipes and reseeds it every night at 00:00 WIB, so the dates stay current.
 - **Reset by hand:** `docker compose -f docker-compose.prod.yml exec app php artisan demo:reset`.
 
-In a short run on a shared 2-vCPU host with 2 workers, the dashboard served ~50 req/s (about 3,000 per minute) against ~15 req/s on `php artisan serve`, and `/up` ~950 req/s.
+With 2 workers on a 4-vCPU CI runner, the dashboard serves ~130 req/s (about 7,800 per minute) and the lists 160–220 req/s; the [`perf` workflow](.github/workflows/perf.yml) measures it and compares a branch with main on the same runner.
 
 [DOCKER.md](DOCKER.md) covers:
 - how the image is built;

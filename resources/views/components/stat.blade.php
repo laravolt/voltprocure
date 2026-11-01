@@ -1,3 +1,4 @@
+@blaze
 @props(['label', 'href' => null])
 
 @php($tag = $href ? 'a' : 'div')

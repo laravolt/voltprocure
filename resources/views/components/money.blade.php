@@ -1,3 +1,4 @@
+@blaze
 @props(['amount', 'compact' => false])
 
 @php

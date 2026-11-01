@@ -43,6 +43,6 @@ final class VisiblePurchaseRequests
         }
 
         return $user->hasPermission('*')
-            || $request->department()->value('manager_id') === $user->getKey();
+            || $request->department?->manager_id === $user->getKey();
     }
 }

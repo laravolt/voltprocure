@@ -35,28 +35,35 @@ final readonly class HomeController
 
         $now = CarbonImmutable::instance(Date::now());
 
+        $submitted = $this->visible->for($user)
+            ->where('status', PurchaseRequestStatus::Submitted)
+            ->with(['requester', 'department', 'lines'])
+            ->oldest('submitted_at')
+            ->get();
+        $openOrders = PurchaseOrder::query()
+            ->whereIn('status', [PurchaseOrderStatus::Issued, PurchaseOrderStatus::PartiallyReceived])
+            ->with(['lines', 'supplier'])
+            ->orderBy('expected_at')
+            ->get();
+
         return view('home', [
             'user' => $user,
             'now' => $now,
-            'pending' => $this->pendingApprovals($user),
-            'openOrders' => $this->openOrders(),
+            'pending' => $this->pendingApprovals($submitted),
+            'openOrders' => $this->openOrders($openOrders),
             'lowStock' => $this->lowStock(),
             'spend' => $this->monthlySpend($now),
             'weeks' => $this->weeklySpend($now),
-            'work' => $this->workFor($user, $now),
+            'work' => $this->workFor($user, $now, $submitted, $openOrders),
         ]);
     }
 
     /**
+     * @param  Collection<int, PurchaseRequest>  $requests
      * @return array{count: int, value: int}
      */
-    private function pendingApprovals(User $user): array
+    private function pendingApprovals(Collection $requests): array
     {
-        $requests = $this->visible->for($user)
-            ->where('status', PurchaseRequestStatus::Submitted)
-            ->with('lines')
-            ->get();
-
         return [
             'count' => $requests->count(),
             'value' => (int) $requests->sum(fn (PurchaseRequest $request): int => $request->estimatedTotal()),
@@ -64,15 +71,11 @@ final readonly class HomeController
     }
 
     /**
+     * @param  Collection<int, PurchaseOrder>  $orders
      * @return array{count: int, value: int, overdue: int}
      */
-    private function openOrders(): array
+    private function openOrders(Collection $orders): array
     {
-        $orders = PurchaseOrder::query()
-            ->whereIn('status', [PurchaseOrderStatus::Issued, PurchaseOrderStatus::PartiallyReceived])
-            ->with('lines')
-            ->get();
-
         return [
             'count' => $orders->count(),
             'value' => (int) $orders->sum(fn (PurchaseOrder $order): int => $order->outstandingValue()),
@@ -115,27 +118,47 @@ final readonly class HomeController
     /**
      * Order value issued per week (Monday start), oldest first.
      *
+     * One pass over the orders: each order's date is read once and placed by
+     * timestamp, which keeps this cheap on a dashboard every user opens.
+     *
      * @return list<array{start: CarbonImmutable, total: int, orders: int}>
      */
     private function weeklySpend(CarbonImmutable $now): array
     {
         $firstWeek = $now->startOfWeek()->subWeeks(self::CHART_WEEKS - 1);
 
+        $starts = [];
+        for ($i = 0; $i < self::CHART_WEEKS; $i++) {
+            $starts[] = $firstWeek->addWeeks($i);
+        }
+        $timestamps = array_map(fn (CarbonImmutable $start): int => $start->getTimestamp(), $starts);
+        $totals = array_fill(0, self::CHART_WEEKS, 0);
+        $counts = array_fill(0, self::CHART_WEEKS, 0);
+
         $orders = PurchaseOrder::query()
             ->where('issued_at', '>=', $firstWeek)
+            ->where('issued_at', '<', $firstWeek->addWeeks(self::CHART_WEEKS))
             ->get(['issued_at', 'total']);
 
-        $weeks = [];
-        for ($i = 0; $i < self::CHART_WEEKS; $i++) {
-            $start = $firstWeek->addWeeks($i);
-            $inWeek = $orders->filter(fn (PurchaseOrder $order): bool => $order->issued_at !== null
-                && $order->issued_at->betweenIncluded($start, $start->endOfWeek()));
+        foreach ($orders as $order) {
+            $issuedAt = $order->issued_at;
+            if ($issuedAt === null) {
+                continue;
+            }
 
-            $weeks[] = [
-                'start' => $start,
-                'total' => $inWeek->sum(fn (PurchaseOrder $order): int => $order->total),
-                'orders' => $inWeek->count(),
-            ];
+            $timestamp = $issuedAt->getTimestamp();
+            $week = self::CHART_WEEKS - 1;
+            while ($week > 0 && $timestamp < $timestamps[$week]) {
+                $week--;
+            }
+
+            $totals[$week] += $order->total;
+            $counts[$week]++;
+        }
+
+        $weeks = [];
+        foreach ($starts as $i => $start) {
+            $weeks[] = ['start' => $start, 'total' => $totals[$i], 'orders' => $counts[$i]];
         }
 
         return $weeks;
@@ -145,18 +168,15 @@ final readonly class HomeController
      * Today's work for this person, most urgent first. Each permission adds
      * the documents that are waiting on that role.
      *
+     * @param  Collection<int, PurchaseRequest>  $submitted  submitted requests this person can see, oldest first
+     * @param  Collection<int, PurchaseOrder>  $openOrders  issued or partly received orders, by expected date
      * @return list<array{number: string, title: string, meta: string, action: string, url: string, urgent: bool}>
      */
-    private function workFor(User $user, CarbonImmutable $now): array
+    private function workFor(User $user, CarbonImmutable $now, Collection $submitted, Collection $openOrders): array
     {
         $work = [];
 
-        $toDecide = $this->visible->for($user)
-            ->where('status', PurchaseRequestStatus::Submitted)
-            ->with(['requester', 'department', 'lines'])
-            ->oldest('submitted_at')
-            ->get()
-            ->filter(fn (PurchaseRequest $request): bool => $this->visible->canDecide($user, $request));
+        $toDecide = $submitted->filter(fn (PurchaseRequest $request): bool => $this->visible->canDecide($user, $request));
 
         foreach ($toDecide as $request) {
             $submittedAt = $request->submitted_at;
@@ -191,13 +211,7 @@ final readonly class HomeController
         }
 
         if ($user->hasPermission(Permission::GOODS_RECEIPT_CREATE) || $user->hasPermission('*')) {
-            $toReceive = PurchaseOrder::query()
-                ->whereIn('status', [PurchaseOrderStatus::Issued, PurchaseOrderStatus::PartiallyReceived])
-                ->with('supplier')
-                ->orderBy('expected_at')
-                ->get();
-
-            foreach ($toReceive as $order) {
+            foreach ($openOrders as $order) {
                 $work[] = [
                     'number' => $order->number,
                     'title' => (string) $order->supplier?->name,

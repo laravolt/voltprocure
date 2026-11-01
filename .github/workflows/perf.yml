@@ -1,0 +1,155 @@
+name: perf
+
+# Throughput and CPU profile of the main pages. Run it by hand, or push to a
+# perf/** branch. On a branch, each job measures main and the branch one after
+# the other on the same runner and prints the speed-up: runners differ in speed
+# by up to 2x, so numbers from different runs are not comparable. Results land
+# in the job summary; the profile job also uploads speedscope files (open them
+# at https://www.speedscope.app).
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - perf/**
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  profile:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://127.0.0.1
+      APP_DEMO: "true"
+      APP_FORCE_HTTPS: "false"
+      DB_CONNECTION: sqlite
+      SESSION_DRIVER: cookie
+      CACHE_STORE: file
+      LOG_CHANNEL: stderr
+      OCTANE_SERVER: frankenphp
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: branch
+
+      - name: Check out main to compare against
+        if: github.ref != 'refs/heads/main'
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          path: main
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          tools: composer:v2
+          coverage: none
+          extensions: excimer
+          # Same OPcache settings as the production image.
+          ini-values: opcache.enable_cli=1, opcache.jit=tracing, opcache.jit_buffer_size=64M, opcache.validate_timestamps=0, memory_limit=512M
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install, seed and cache each checkout as the production image does
+        run: |
+          key="base64:$(openssl rand -base64 32)"
+          echo "::add-mask::$key"
+          export APP_KEY="$key"
+          for app in main branch; do
+            [ -d "$app" ] || continue
+            (
+              cd "$app"
+              export DB_DATABASE="$PWD/database/data/perf.sqlite"
+              composer install --no-dev --no-scripts --prefer-dist --no-interaction --no-progress
+              composer dump-autoload --classmap-authoritative --no-dev
+              bun install --frozen-lockfile
+              bun run build
+              php artisan package:discover --ansi
+              php artisan laravolt:extract-assets --no-interaction
+              php artisan laravolt:link --no-interaction
+              mkdir -p database/data
+              touch "$DB_DATABASE"
+              php artisan migrate --force --seed --no-interaction
+              php artisan optimize --no-interaction
+            )
+          done
+
+      - name: Profile
+        run: |
+          for app in main branch; do
+            [ -d "$app" ] || continue
+            label=$([ "$app" = main ] && echo main || echo "$GITHUB_REF_NAME")
+            PERF_APP_PATH="$PWD/$app" PERF_LABEL="$label" php branch/scripts/perf/profile.php 200 "perf-profile/$app"
+          done
+          if [ -d main ]; then
+            branch/scripts/perf/compare.sh profile perf-profile/main/results.json perf-profile/branch/results.json
+          fi
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: perf-profile
+          path: perf-profile
+
+  load:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: branch
+
+      - name: Check out main to compare against
+        if: github.ref != 'refs/heads/main'
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          path: main
+
+      - name: Install wrk
+        run: sudo apt-get update -q && sudo apt-get install -yq wrk
+
+      - name: Build the production images
+        run: |
+          for app in main branch; do
+            [ -d "$app" ] || continue
+            docker build -q -f "$app/docker/frankenphp/prod.Dockerfile" -t "voltprocure:$app" "$app"
+          done
+
+      - name: Measure with 2 Octane workers
+        run: |
+          key="base64:$(openssl rand -base64 32)"
+          echo "Runner: $(nproc) vCPU, $(free -m | awk '/^Mem:/ {print $2}') MB" >> "$GITHUB_STEP_SUMMARY"
+          for app in main branch; do
+            [ -d "$app" ] || continue
+            label=$([ "$app" = main ] && echo main || echo "$GITHUB_REF_NAME")
+            docker run -d --name app -p 8090:8080 \
+              -e APP_KEY="$key" -e APP_ENV=production -e APP_DEBUG=false -e APP_URL=http://127.0.0.1:8090 \
+              -e APP_DEMO=true -e APP_FORCE_HTTPS=false -e SESSION_DRIVER=cookie -e CACHE_STORE=file \
+              -e OCTANE_WORKERS=2 \
+              "voltprocure:$app"
+            for i in $(seq 1 60); do
+              curl -sf -o /dev/null http://127.0.0.1:8090/up && break
+              sleep 2
+            done
+            PERF_RESULTS="load-$app.txt" branch/scripts/perf/load.sh http://127.0.0.1:8090 15s 8 "$label, 2 Octane workers"
+            docker rm -f app > /dev/null
+          done
+          if [ -d main ]; then
+            branch/scripts/perf/compare.sh load load-main.txt load-branch.txt
+          fi
+
+      - name: Container state and logs
+        if: failure()
+        run: |
+          docker inspect app --format 'status={{.State.Status}} exit={{.State.ExitCode}} oom={{.State.OOMKilled}} restarts={{.RestartCount}}' || true
+          docker logs app 2>&1 | tail -100

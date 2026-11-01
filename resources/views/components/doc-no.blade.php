@@ -1,3 +1,4 @@
+@blaze
 @props(['number', 'href' => null])
 
 @if ($href)
