@@ -116,4 +116,4 @@ VoltProcure runs on released versions: laravolt/laravolt ^8.1 (Preline 5, Tailwi
 
 ## License
 
-MIT. Design direction credit: unslop by @heydamir, CC BY 4.0.
+MIT, see [LICENSE](LICENSE). Design direction credit: unslop by @heydamir, CC BY 4.0.
