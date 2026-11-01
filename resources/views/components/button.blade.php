@@ -1,3 +1,4 @@
+@blaze
 @props(['variant' => 'primary', 'href' => null])
 
 @php

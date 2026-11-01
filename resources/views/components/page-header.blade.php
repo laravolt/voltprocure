@@ -1,3 +1,4 @@
+@blaze
 @props(['title', 'eyebrow' => null])
 
 <header class="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
