@@ -77,6 +77,10 @@ jobs:
           name: screenshots
           path: screenshots
 
-      - name: Container logs
+      - name: Container state and logs
         if: always()
-        run: docker logs app 2>&1 | tail -100
+        run: |
+          # An empty reply with no log line means the server process died:
+          # the state shows whether the container exited, was OOM-killed or restarted.
+          docker inspect app --format 'status={{.State.Status}} exit={{.State.ExitCode}} oom={{.State.OOMKilled}} restarts={{.RestartCount}} started={{.State.StartedAt}} finished={{.State.FinishedAt}}' || true
+          docker logs app 2>&1 | tail -100
