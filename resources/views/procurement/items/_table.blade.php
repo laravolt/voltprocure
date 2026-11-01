@@ -3,14 +3,14 @@
     <x-empty>Semua stok aman.</x-empty>
 @else
     <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
+        <table class="basictable w-full text-left text-sm">
             <thead class="border-b border-zinc-200 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
                 <tr>
                     <th scope="col" class="px-5 py-2.5 font-medium">SKU</th>
                     <th scope="col" class="px-5 py-2.5 font-medium">Barang</th>
                     <th scope="col" class="hidden px-5 py-2.5 font-medium md:table-cell">Kategori</th>
                     <th scope="col" class="px-5 py-2.5 text-right font-medium">Stok</th>
-                    <th scope="col" class="hidden px-5 py-2.5 font-medium sm:table-cell"><span class="sr-only">Terhadap titik pesan ulang</span></th>
+                    <th scope="col" class="hidden px-5 py-2.5 font-medium sm:table-cell"><span class="sr-only">Titik pesan ulang</span></th>
                     <th scope="col" class="hidden px-5 py-2.5 text-right font-medium lg:table-cell">Harga standar</th>
                 </tr>
             </thead>
