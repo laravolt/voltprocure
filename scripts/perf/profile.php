@@ -121,7 +121,7 @@ foreach ($pages as $page) {
         $start = hrtime(true);
         $response = $send('GET', $page);
         $times[] = (hrtime(true) - $start) / 1e6;
-        $bytes += strlen((string) $response->getContent());
+        $bytes += mb_strlen((string) $response->getContent());
     }
     sort($times);
 
@@ -149,7 +149,7 @@ foreach ($pages as $page) {
         $profiler->stop();
 
         $log = $profiler->getLog();
-        $name = trim(str_replace('/', '-', $page), '-');
+        $name = mb_trim(str_replace('/', '-', $page), '-');
         file_put_contents("{$outDir}/{$name}.collapsed.txt", $log->formatCollapsed());
         file_put_contents("{$outDir}/{$name}.speedscope.json", json_encode($log->getSpeedscopeData()));
 
