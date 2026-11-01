@@ -1,0 +1,11 @@
+#!/bin/sh
+# Serves VoltProcure with Laravel Octane in FrankenPHP worker mode, using the
+# Caddyfile that ships with the base image (trusted proxies, security headers,
+# asset caching, /healthcheck).
+exec php artisan octane:frankenphp \
+    --host=0.0.0.0 \
+    --port=8080 \
+    --caddyfile=/etc/frankenphp/Caddyfile \
+    --workers="${OCTANE_WORKERS:-auto}" \
+    --max-requests="${OCTANE_MAX_REQUESTS:-1000}" \
+    --log-level="${OCTANE_LOG_LEVEL:-warn}"

@@ -19,8 +19,8 @@ x-app: &app
     DB_BUSY_TIMEOUT: 5000
     DB_TRANSACTION_MODE: IMMEDIATE
   volumes:
-    - voltprocure-database:/app/database/data
-    - voltprocure-storage:/app/storage
+    - voltprocure-database:/var/www/html/database/data
+    - voltprocure-storage:/var/www/html/storage
   restart: unless-stopped
 
 services:

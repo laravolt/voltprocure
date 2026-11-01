@@ -36,6 +36,10 @@ jobs:
             sleep 2
           done
           curl -sf -o /dev/null http://127.0.0.1:8090/up
+          # The base image's Caddyfile serves Octane too: its health check and headers apply.
+          curl -sf http://127.0.0.1:8090/healthcheck
+          echo
+          curl -s -o /dev/null -D - http://127.0.0.1:8090/auth/login | grep -iE '^(server|x-|content-security|strict-transport|referrer)' || true
 
       - name: Log in and open every page twice
         run: |

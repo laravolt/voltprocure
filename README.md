@@ -66,7 +66,7 @@ composer dev     # server, queue, logs and Vite together
 
 ## Run it with Docker (Octane + FrankenPHP)
 
-The production image serves the app with [Laravel Octane](https://laravel.com/docs/octane) on [FrankenPHP](https://frankenphp.dev) in worker mode: each worker boots Laravel once and keeps it in memory.
+The production image serves the app with [Laravel Octane](https://laravel.com/docs/octane) on [FrankenPHP](https://frankenphp.dev) in worker mode: each worker boots Laravel once and keeps it in memory. It is built on [`laravoltdev/image`](https://github.com/laravolt/image), the Laravolt base image (ServerSideUp PHP v5, scanned and rebuilt weekly).
 
 ```bash
 cp .env.docker.example .env.docker
