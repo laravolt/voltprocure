@@ -9,9 +9,12 @@ declare(strict_types=1);
  *   php scripts/perf/profile.php [requests-per-page] [output-dir]
  *
  * Needs a migrated and seeded database (the demo seeder). Prints a Markdown
- * table of time and queries per page. When the excimer extension is loaded it
- * also samples CPU time and writes, per page, a speedscope profile and a
- * collapsed-stack file for flame graphs.
+ * table of time and queries per page and writes the same numbers to
+ * results.json. When the excimer extension is loaded it also samples CPU time
+ * and writes, per page, a speedscope profile and a collapsed-stack file.
+ *
+ * PERF_APP_PATH profiles another checkout (to compare two versions on the same
+ * machine); PERF_LABEL names it in the output; PERF_USER picks the account.
  */
 
 use Illuminate\Database\Events\QueryExecuted;
@@ -22,7 +25,8 @@ use Laravel\Octane\Testing\Fakes\FakeClient;
 use Laravel\Octane\Worker;
 use Symfony\Component\HttpFoundation\Response;
 
-$basePath = dirname(__DIR__, 2);
+$basePath = getenv('PERF_APP_PATH') ?: dirname(__DIR__, 2);
+$label = getenv('PERF_LABEL') ?: basename($basePath);
 require $basePath.'/vendor/autoload.php';
 
 $perPage = max(1, (int) ($argv[1] ?? 200));
@@ -102,6 +106,7 @@ $percentile = function (array $sorted, float $p): float {
 
 $excimer = extension_loaded('excimer');
 $rows = [];
+$results = [];
 $hot = [];
 
 foreach ($pages as $page) {
@@ -124,6 +129,11 @@ foreach ($pages as $page) {
         $bytes += mb_strlen((string) $response->getContent());
     }
     sort($times);
+    $results[$page] = [
+        'mean_ms' => round(array_sum($times) / count($times), 2),
+        'p50_ms' => round($percentile($times, 50), 2),
+        'queries' => $queries / $perPage,
+    ];
 
     $rows[] = sprintf(
         '| `%s` | %.1f | %.1f | %.1f | %.0f | %.1f | %.1f | %d |',
@@ -164,7 +174,7 @@ foreach ($pages as $page) {
 }
 
 $out = [
-    "### Octane worker profile ({$perPage} requests per page, user `{$email}`)",
+    "### Octane worker profile: {$label} ({$perPage} requests per page, user `{$email}`)",
     '',
     'PHP '.PHP_VERSION.', OPcache JIT '.(ini_get('opcache.jit') ?: 'off').'. One worker, so req/s is per CPU core.',
     '',
@@ -186,6 +196,8 @@ foreach ($hot as $page => $functions) {
     $out[] = '</details>';
     $out[] = '';
 }
+
+file_put_contents("{$outDir}/results.json", json_encode($results, JSON_PRETTY_PRINT));
 
 $markdown = implode("\n", $out)."\n";
 echo $markdown;

@@ -1,9 +1,11 @@
 name: perf
 
 # Throughput and CPU profile of the main pages. Run it by hand, or push to a
-# perf/** branch to compare a change against main. Results land in the job
-# summary; the profile job also uploads speedscope files (open them at
-# https://www.speedscope.app).
+# perf/** branch. On a branch, each job measures main and the branch one after
+# the other on the same runner and prints the speed-up: runners differ in speed
+# by up to 2x, so numbers from different runs are not comparable. Results land
+# in the job summary; the profile job also uploads speedscope files (open them
+# at https://www.speedscope.app).
 
 on:
   workflow_dispatch:
@@ -21,7 +23,7 @@ concurrency:
 jobs:
   profile:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       APP_ENV: production
       APP_DEBUG: "false"
@@ -29,7 +31,6 @@ jobs:
       APP_DEMO: "true"
       APP_FORCE_HTTPS: "false"
       DB_CONNECTION: sqlite
-      DB_DATABASE: ${{ github.workspace }}/database/data/perf.sqlite
       SESSION_DRIVER: cookie
       CACHE_STORE: file
       LOG_CHANNEL: stderr
@@ -37,6 +38,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: branch
+
+      - name: Check out main to compare against
+        if: github.ref != 'refs/heads/main'
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          path: main
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -49,28 +59,40 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      - name: Install the app as the production image does
+      - name: Install, seed and cache each checkout as the production image does
         run: |
-          composer install --no-dev --no-scripts --prefer-dist --no-interaction --no-progress
-          composer dump-autoload --classmap-authoritative --no-dev
-          bun install --frozen-lockfile
-          bun run build
-          php artisan package:discover --ansi
-          php artisan laravolt:extract-assets --no-interaction
-          php artisan laravolt:link --no-interaction
           key="base64:$(openssl rand -base64 32)"
           echo "::add-mask::$key"
-          echo "APP_KEY=$key" >> "$GITHUB_ENV"
-
-      - name: Seed the demo data and cache the bootstrap
-        run: |
-          mkdir -p database/data
-          touch "$DB_DATABASE"
-          php artisan migrate --force --seed --no-interaction
-          php artisan optimize --no-interaction
+          export APP_KEY="$key"
+          for app in main branch; do
+            [ -d "$app" ] || continue
+            (
+              cd "$app"
+              export DB_DATABASE="$PWD/database/data/perf.sqlite"
+              composer install --no-dev --no-scripts --prefer-dist --no-interaction --no-progress
+              composer dump-autoload --classmap-authoritative --no-dev
+              bun install --frozen-lockfile
+              bun run build
+              php artisan package:discover --ansi
+              php artisan laravolt:extract-assets --no-interaction
+              php artisan laravolt:link --no-interaction
+              mkdir -p database/data
+              touch "$DB_DATABASE"
+              php artisan migrate --force --seed --no-interaction
+              php artisan optimize --no-interaction
+            )
+          done
 
       - name: Profile
-        run: php scripts/perf/profile.php 200 perf-profile
+        run: |
+          for app in main branch; do
+            [ -d "$app" ] || continue
+            label=$([ "$app" = main ] && echo main || echo "$GITHUB_REF_NAME")
+            PERF_APP_PATH="$PWD/$app" PERF_LABEL="$label" php branch/scripts/perf/profile.php 200 "perf-profile/$app"
+          done
+          if [ -d main ]; then
+            branch/scripts/perf/compare.sh profile perf-profile/main/results.json perf-profile/branch/results.json
+          fi
 
       - uses: actions/upload-artifact@v7
         with:
@@ -79,34 +101,52 @@ jobs:
 
   load:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          path: branch
+
+      - name: Check out main to compare against
+        if: github.ref != 'refs/heads/main'
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          path: main
 
       - name: Install wrk
         run: sudo apt-get update -q && sudo apt-get install -yq wrk
 
-      - name: Build the production image
-        run: docker build -f docker/frankenphp/prod.Dockerfile -t voltprocure:perf .
+      - name: Build the production images
+        run: |
+          for app in main branch; do
+            [ -d "$app" ] || continue
+            docker build -q -f "$app/docker/frankenphp/prod.Dockerfile" -t "voltprocure:$app" "$app"
+          done
 
-      - name: Measure with 2 and 4 Octane workers
+      - name: Measure with 2 Octane workers
         run: |
           key="base64:$(openssl rand -base64 32)"
           echo "Runner: $(nproc) vCPU, $(free -m | awk '/^Mem:/ {print $2}') MB" >> "$GITHUB_STEP_SUMMARY"
-          for workers in 2 4; do
+          for app in main branch; do
+            [ -d "$app" ] || continue
+            label=$([ "$app" = main ] && echo main || echo "$GITHUB_REF_NAME")
             docker run -d --name app -p 8090:8080 \
               -e APP_KEY="$key" -e APP_ENV=production -e APP_DEBUG=false -e APP_URL=http://127.0.0.1:8090 \
               -e APP_DEMO=true -e APP_FORCE_HTTPS=false -e SESSION_DRIVER=cookie -e CACHE_STORE=file \
-              -e OCTANE_WORKERS="$workers" \
-              voltprocure:perf
+              -e OCTANE_WORKERS=2 \
+              "voltprocure:$app"
             for i in $(seq 1 60); do
               curl -sf -o /dev/null http://127.0.0.1:8090/up && break
               sleep 2
             done
-            scripts/perf/load.sh http://127.0.0.1:8090 15s 8 "$workers Octane workers"
+            PERF_RESULTS="load-$app.txt" branch/scripts/perf/load.sh http://127.0.0.1:8090 15s 8 "$label, 2 Octane workers"
             docker rm -f app > /dev/null
           done
+          if [ -d main ]; then
+            branch/scripts/perf/compare.sh load load-main.txt load-branch.txt
+          fi
 
       - name: Container state and logs
         if: failure()

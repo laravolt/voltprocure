@@ -5,7 +5,8 @@
 #
 #   scripts/perf/load.sh <base-url> [duration] [connections] [label]
 #
-# Prints a Markdown table (and appends it to the GitHub job summary).
+# Prints a Markdown table (and appends it to the GitHub job summary). With
+# PERF_RESULTS set, also writes "<path> <req/s> <p50>" lines to that file.
 set -euo pipefail
 
 base=${1:?usage: load.sh <base-url> [duration] [connections] [label]}
@@ -52,6 +53,9 @@ for path in /up /home /purchase-requests /purchase-orders /items /suppliers; do
   rpm=$(awk -v r="$rps" 'BEGIN {printf "%d", r * 60}')
 
   echo "| \`$path\` | $rps | $rpm | $p50 | $p90 | $p99 | $errors |" >> "$summary"
+  if [ -n "${PERF_RESULTS:-}" ]; then
+    echo "$path $rps $p50" >> "$PERF_RESULTS"
+  fi
 done
 
 echo >> "$summary"
