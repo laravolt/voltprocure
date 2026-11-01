@@ -8,7 +8,7 @@
 # extensions Laravolt needs, a hardened Caddyfile that Octane uses as is, and
 # images that are scanned and rebuilt weekly. Pin a versioned tag.
 
-ARG BASE_IMAGE=laravoltdev/image:php8.5-prod-v2.0.0
+ARG BASE_IMAGE=laravoltdev/image:php8.5-prod-v2.1.0
 
 # --- PHP dependencies -------------------------------------------------------
 FROM ${BASE_IMAGE} AS vendor
