@@ -66,3 +66,13 @@
         white-space: nowrap;
     }
 }
+
+/*
+ * On phones, Laravolt's Basictable shows each table marked `basictable` as a
+ * stack of cards. Our cells are sized for the wide table, so let them wrap.
+ */
+.bt-wrapper table.bt tbody td {
+    width: auto;
+    max-width: none;
+    white-space: normal;
+}

@@ -4,7 +4,7 @@
 
         <x-card>
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm">
+                <table class="basictable w-full text-left text-sm">
                     <thead class="border-b border-zinc-200 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
                         <tr>
                             <th scope="col" class="px-5 py-2.5 font-medium">Kode</th>
