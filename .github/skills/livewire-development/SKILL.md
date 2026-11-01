@@ -1,241 +1,164 @@
 ---
 name: livewire-development
-description: "Use this skill whenever creating, editing, reviewing, or testing Livewire components, `wire:*` Blade directives, reactive forms, Livewire loading or offline states, computed or locked properties, dynamic rows, progressive conversion from controller forms, or Livewire browser tests. Also trigger for double-submit prevention, pending-state UX, Livewire authorization, custom update routes, and Alpine integration. Do not use for plain Blade/controller forms that have no Livewire behavior."
+description: "Use for any task or question involving Livewire. Activate if user mentions Livewire, wire: directives, or Livewire-specific concepts like wire:model, wire:click, wire:sort, or islands, invoke this skill. Covers building new components, debugging reactivity issues, real-time form validation, drag-and-drop, loading states, migrating from Livewire 3 to 4, converting component formats (SFC/MFC/class-based), and performance optimization. Do not use for non-Livewire reactive UI (React, Vue, Alpine-only, Inertia.js) or standard Laravel forms without Livewire."
 license: MIT
 metadata:
-  author: laravolt
+  author: laravel
 ---
 
-# Livewire 4 Development
+# Livewire development
 
-## Before Editing
+## Documentation
 
-1. Confirm the installed Livewire version with `composer show livewire/livewire`.
-2. Use `search-docs` for APIs that depend on the installed version.
-3. Read `.ai/rules/index.md` and every matching project rule.
-4. Inspect nearby components, Blade views, and tests before introducing a new pattern.
+Use `search-docs` for detailed Livewire 4 patterns and documentation.
 
-The `x-volt-*` prefix belongs to Laravolt's Blade components. It does not mean the application uses the `livewire/volt` package.
+## Basic usage
 
-## Component Boundaries
+### Creating components
 
-- Keep business writes in Actions or services when both an HTTP controller and Livewire component use the operation.
-- Treat every public property and action argument as untrusted request input.
-- Validate writable values immediately before persistence.
-- Reload state-sensitive models inside the action before authorizing and writing.
-- Authorize every action. A hidden button, route middleware, or locked property is not sufficient on its own.
-- Avoid request-specific static or singleton state because the application may run under Octane.
+```bash
+# Single-file component (SFC - default in v4)
+# Creates: resources/views/components/⚡create-post.blade.php
+php artisan make:livewire create-post
 
-## Progressive Conversion
+# Page component (SFC - Full Page in v4)
+# Creates: resources/views/pages/⚡create-post.blade.php
+php artisan make:livewire pages::create-post
 
-When converting an existing controller form:
+# Multi-file component (MFC)
+# Creates: resources/views/components/⚡create-post/create-post.php
+#          resources/views/components/⚡create-post/create-post.blade.php
+php artisan make:livewire create-post --mfc
 
-- preserve its route, CSRF token, method spoofing, field names, validation, flashed old input, and fallback until removal is intentional;
-- keep the existing HTTP feature test, including successful submit and redirect-back error recovery;
-- share validation rules and the write operation rather than duplicating either path;
-- introduce Livewire on one bounded flow before converting authentication or other high-risk surfaces;
-- do not activate a component for states it cannot render or submit.
+# Class-based component (v3 style)
+# Creates: app/Livewire/CreatePost.php AND resources/views/livewire/create-post.blade.php
+php artisan make:livewire create-post --class
 
-A progressively enhanced form should retain a normal `action` and `method` where practical:
-
-```blade
-<form
-    method="POST"
-    action="{{ route('profile.update') }}"
-    wire:submit="save"
->
-    @csrf
-    @method('PUT')
-</form>
+# With namespace
+php artisan make:livewire Posts/CreatePost
 ```
 
-## Security
+### Converting between formats
 
-Use `#[Locked]` for client-immutable scalar state such as model IDs:
+Use `php artisan livewire:convert create-post` to convert between single-file, multi-file, and class-based formats.
 
+### Choosing a component format
+
+> **Always follow the project's existing conventions first.** Before creating any component, inspect the project's existing Livewire components to find the established format (SFC, MFC, or class-based) and directory structure. Check `app/Livewire/`, `resources/views/components/`, and `resources/views/livewire/` for existing components. If the project already uses a consistent format, **use that same format**, even if it differs from the Livewire v4 defaults below. Fall back to the v4 defaults (SFC in `resources/views/components/`) only when the project has no established convention.
+
+Also check `config/livewire.php` for `make_command.type`, `make_command.emoji`, `component_locations`, and `component_namespaces` overrides, which change the default format and where Livewire stores files.
+
+### Component format reference
+
+| Format | Flag | Class Path | View Path |
+|--------|------|------------|-----------|
+| Single-file (SFC) | default | — | `resources/views/components/⚡create-post.blade.php` (PHP + Blade in one file) |
+| Full Page SFC | `pages::name` | — | `resources/views/pages/⚡create-post.blade.php` |
+| Multi-file (MFC) | `--mfc` | `resources/views/components/⚡create-post/create-post.php` | `resources/views/components/⚡create-post/create-post.blade.php` |
+| Class-based | `--class` | `app/Livewire/CreatePost.php` | `resources/views/livewire/create-post.blade.php` |
+| View-based | default (Blade-only) | — | `resources/views/components/⚡create-post.blade.php` (Blade-only with functional state) |
+
+> **Important:** The ⚡ prefix shown above is the **default** behavior in Livewire v4. It is **configurable**. Check `config/livewire.php` for the `make_command.emoji` setting. When the setting is `true` (the default), always include the ⚡ prefix in filenames you create. When `false`, omit the ⚡ prefix from all paths above.
+
+Namespaced components map to subdirectories: `make:livewire Posts/CreatePost` creates `resources/views/components/posts/⚡create-post.blade.php` (single-file by default). Use `make:livewire Posts/CreatePost --mfc` for multi-file output at `resources/views/components/posts/⚡create-post/create-post.php` and `resources/views/components/posts/⚡create-post/create-post.blade.php`.
+
+### Single-file component example
+
+<!-- Single-File Component Example -->
 ```php
-use Livewire\Attributes\Locked;
+<?php
+use Livewire\Component;
 
-#[Locked]
-public int $userId;
-```
+new class extends Component {
+    public int $count = 0;
 
-Still authorize the resolved model inside the action:
+    public function increment(): void
+    {
+        $this->count++;
+    }
+};
+?>
 
-```php
-public function save(UpdateProfile $updateProfile): void
-{
-    $user = User::query()->findOrFail($this->userId);
-
-    $this->authorize('update', $user);
-
-    $validated = $this->validate([...]);
-
-    $updateProfile->handle($user, $validated);
-}
-```
-
-Do not trust hidden, readonly, or disabled fields. Recompute derived values on the server.
-
-## Loading-State Contract
-
-Classify each request as either a primary write action or a micro request.
-
-### Primary writes
-
-For Save, Submit, Approve, Reject, Delete, or Sync:
-
-- disable conflicting actions;
-- lock the relevant fieldset;
-- set `aria-busy` on the form or region;
-- keep the action's normal and loading labels separate;
-- provide a polite status message;
-- ensure the final success or error state is explicit.
-
-```blade
-<form
-    wire:submit="save"
-    wire:loading.attr="aria-busy"
-    wire:target="save"
->
-    <fieldset wire:loading.attr="disabled" wire:target="save">
-        {{-- fields --}}
-
-        <x-volt-button
-            type="submit"
-            wire:loading.attr="disabled"
-            wire:target="save"
-        >
-            <span wire:loading.remove wire:target="save">Save</span>
-            <span wire:loading.flex wire:target="save" role="status">
-                Saving...
-            </span>
-        </x-volt-button>
-
-        <p
-            wire:loading.delay
-            wire:target="save"
-            role="status"
-            aria-live="polite"
-        >
-            Please wait while the form is processed.
-        </p>
-    </fieldset>
-</form>
-```
-
-If multiple writes conflict, target all of them on the fieldset and buttons, while keeping each visible label targeted to its own action.
-
-### Micro requests
-
-Use action-specific delayed indicators for checks, dependent selects, and small updates:
-
-```blade
-<p wire:loading.delay wire:target="checkCode" role="status">
-    Checking availability...
-</p>
-```
-
-Do not show a global spinner for every component request. For row actions, target the exact invocation:
-
-```blade
-wire:target="removeRow({{ $rowId }})"
-```
-
-## Offline and Long-Running States
-
-Every form that writes data should expose offline feedback:
-
-```blade
-<div wire:offline>
-    <x-volt-alert variant="warning">
-        You are offline. Changes cannot be sent yet.
-    </x-volt-alert>
+<div>
+    <button wire:click="increment">Count: @{{ $count }}</button>
 </div>
 ```
 
-For polling or asynchronous backend work:
+## Livewire 4 specifics
 
-- show the current operation;
-- stop polling on a terminal state;
-- expose backend errors;
-- escalate the message after a documented UX threshold;
-- offer retry only when the operation is safe to repeat.
+### Key changes from Livewire 3
 
-## Derived State
+These things changed in Livewire 4, but this application may not use them yet. Check the application's setup and follow its existing conventions.
 
-Use a domain method or `#[Computed]` property as the single source of truth:
+- For full-page components, use `Route::livewire()`, for example `Route::livewire('/posts/create', CreatePost::class)`. Config keys are renamed: `layout` is now `component_layout`, and `lazy_placeholder` is now `component_placeholder`.
+- `wire:model` now ignores child events by default. For the old behavior, use `wire:model.deep`. `wire:scroll` is renamed to `wire:navigate:scroll`.
+- Component tags must be properly closed. `wire:transition` now uses the View Transitions API, and its modifiers are removed.
+- In JavaScript, `$wire.$js('name', fn)` becomes `$wire.$js.name = fn`, and the `commit` and `request` hooks become `interceptMessage()` and `interceptRequest()`.
 
-```php
-use Livewire\Attributes\Computed;
+### New features
 
-#[Computed]
-public function total(): int
-{
-    return $this->quantity * $this->unitPrice;
-}
-```
+- Component formats: single-file (SFC), multi-file (MFC), and view-based components.
+- Islands (`@island`) for isolated updates. Async actions (`wire:click.async`, `#[Async]`) for parallel execution.
+- Deferred and bundled component loading with `defer` and `lazy.bundle`.
 
-Access computed properties through `$this` in Blade:
+| Feature | Usage | Purpose |
+|---------|-------|---------|
+| Islands | `@island(name: 'stats')` | Isolated update regions |
+| Async | `wire:click.async` or `#[Async]` | Non-blocking actions |
+| Deferred | `defer` attribute | Load after page render |
+| Bundled | `lazy.bundle` | Load multiple together |
 
-```blade
-{{ $this->total }}
-```
+### New directives
 
-Do not independently implement the same formula in Blade, JavaScript, validation, and persistence.
+- `wire:sort`, `wire:intersect`, `wire:ref`, `.renderless`, and `.preserve-scroll` are available.
+- Livewire adds a `data-loading` attribute to elements that trigger network requests.
 
-## Dynamic Collections
+| Directive | Purpose |
+|-----------|---------|
+| `wire:sort` | Drag-and-drop sorting |
+| `wire:intersect` | Viewport intersection detection |
+| `wire:ref` | Element references for JS |
+| `.renderless` | Component without rendering |
+| `.preserve-scroll` | Preserve scroll position |
 
-Editable loops require stable, prefixed keys:
+## Best practices
 
-```blade
-@foreach ($rows as $index => $row)
-    <div wire:key="profile-row-{{ $rowKeys[$index] }}">
-        {{-- row --}}
-    </div>
-@endforeach
-```
+- Always use `wire:key` in loops
+- Use `wire:loading` for loading states
+- Use `wire:model.live` for live updates. `wire:model` is deferred by default
+- Validate and authorize in actions (treat them like HTTP requests)
 
-- Prefer a database ID for persisted rows.
-- Use a server-generated UUID for unsaved rows.
-- Keep UI-only keys separate from domain payloads.
-- Reindex data and key arrays together after removal.
-- Never regenerate every key during render.
-- Never use an array index as the identity of an editable row.
+## Configuration
 
-## Assets and Alpine
+- `smart_wire_keys` defaults to `true`. New config keys: `component_locations`, `component_namespaces`, `make_command`, and `csp_safe`.
 
-Livewire can auto-inject its assets. For custom layouts or deterministic placement, include `@livewireStyles` in the head and `@livewireScripts` before the body closes.
+## Alpine and JavaScript
 
-Do not load Alpine a second time. If manual bundling is required, use the official Livewire ESM pattern and start Livewire exactly once.
+- `wire:transition` uses the browser View Transitions API. The `$errors` and `$intercept` magic properties are available.
+- Non-blocking `wire:poll` and parallel `wire:model.live` updates improve performance.
 
-Do not hardcode `/livewire/update`. Deployments may customize the route, and tests must read the exact URI exposed by `[data-update-uri]`.
+For interceptors and hooks, see [reference/javascript-hooks.md](reference/javascript-hooks.md).
 
 ## Testing
 
-Use `Livewire::test()` for validation, authorization, state, persistence, redirects, and rendered directives.
+<!-- Testing Example -->
+```php
+Livewire::test(Counter::class)
+    ->assertSet('count', 0)
+    ->call('increment')
+    ->assertSet('count', 1);
+```
 
-Use Pest Browser for behavior that requires JavaScript:
+## Verification
 
-- Livewire initialization;
-- a real request remaining pending;
-- button and fieldset disabling;
-- spinner visibility;
-- `aria-busy` changes;
-- offline behavior;
-- dynamic DOM identity;
-- final success, redirect, or error.
+1. Check the browser console for JS errors
+2. In the network tab, verify that Livewire requests return 200
+3. Confirm that every `@foreach` loop has a `wire:key`
 
-A loading-state browser test must:
+## Common pitfalls
 
-1. fill valid data;
-2. read the exact URI from `[data-update-uri]`;
-3. hold one matching `fetch()` request;
-4. trigger the action;
-5. assert the intermediate pending UI;
-6. release the request;
-7. assert the final outcome.
-
-Markup-only assertions prove that directives exist, not that the UX works.
-
-Run focused component and browser tests first, then Pint and the repository's complete test gate.
+- Missing `wire:key` in loops, which causes unexpected re-rendering
+- Expecting real-time updates from `wire:model` instead of using `wire:model.live`
+- Unclosed component tags, which cause syntax errors in v4
+- Using deprecated config keys or JS hooks
+- Including Alpine.js separately, though Livewire 4 already bundles it
