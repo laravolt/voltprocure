@@ -58,7 +58,9 @@ jobs:
           php artisan package:discover --ansi
           php artisan laravolt:extract-assets --no-interaction
           php artisan laravolt:link --no-interaction
-          echo "APP_KEY=base64:$(openssl rand -base64 32)" >> "$GITHUB_ENV"
+          key="base64:$(openssl rand -base64 32)"
+          echo "::add-mask::$key"
+          echo "APP_KEY=$key" >> "$GITHUB_ENV"
 
       - name: Seed the demo data and cache the bootstrap
         run: |

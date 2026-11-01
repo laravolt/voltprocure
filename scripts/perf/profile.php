@@ -29,6 +29,11 @@ $perPage = max(1, (int) ($argv[1] ?? 200));
 $outDir = $argv[2] ?? $basePath.'/storage/perf';
 is_dir($outDir) || mkdir($outDir, 0777, true);
 
+// Boot as a web worker, not as the console: Laravolt registers its icon sets
+// and UI overrides only outside the console.
+putenv('APP_RUNNING_IN_CONSOLE=false');
+$_ENV['APP_RUNNING_IN_CONSOLE'] = $_SERVER['APP_RUNNING_IN_CONSOLE'] = 'false';
+
 $email = getenv('PERF_USER') ?: 'andi@voltprocure.test';
 $pages = ['/up', '/home', '/purchase-requests', '/purchase-orders', '/items', '/suppliers'];
 
