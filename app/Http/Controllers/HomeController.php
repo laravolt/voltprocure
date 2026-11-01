@@ -126,19 +126,18 @@ final readonly class HomeController
     private function weeklySpend(CarbonImmutable $now): array
     {
         $firstWeek = $now->startOfWeek()->subWeeks(self::CHART_WEEKS - 1);
-        $end = $firstWeek->addWeeks(self::CHART_WEEKS);
 
-        $weeks = [];
         $starts = [];
         for ($i = 0; $i < self::CHART_WEEKS; $i++) {
-            $start = $firstWeek->addWeeks($i);
-            $weeks[] = ['start' => $start, 'total' => 0, 'orders' => 0];
-            $starts[] = $start->getTimestamp();
+            $starts[] = $firstWeek->addWeeks($i);
         }
+        $timestamps = array_map(fn (CarbonImmutable $start): int => $start->getTimestamp(), $starts);
+        $totals = array_fill(0, self::CHART_WEEKS, 0);
+        $counts = array_fill(0, self::CHART_WEEKS, 0);
 
         $orders = PurchaseOrder::query()
             ->where('issued_at', '>=', $firstWeek)
-            ->where('issued_at', '<', $end)
+            ->where('issued_at', '<', $firstWeek->addWeeks(self::CHART_WEEKS))
             ->get(['issued_at', 'total']);
 
         foreach ($orders as $order) {
@@ -149,12 +148,17 @@ final readonly class HomeController
 
             $timestamp = $issuedAt->getTimestamp();
             $week = self::CHART_WEEKS - 1;
-            while ($week > 0 && $timestamp < $starts[$week]) {
+            while ($week > 0 && $timestamp < $timestamps[$week]) {
                 $week--;
             }
 
-            $weeks[$week]['total'] += $order->total;
-            $weeks[$week]['orders']++;
+            $totals[$week] += $order->total;
+            $counts[$week]++;
+        }
+
+        $weeks = [];
+        foreach ($starts as $i => $start) {
+            $weeks[] = ['start' => $start, 'total' => $totals[$i], 'orders' => $counts[$i]];
         }
 
         return $weeks;
