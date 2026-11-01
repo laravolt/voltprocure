@@ -17,7 +17,7 @@ flowchart LR
 
 | Approving a request | Stock | On a phone |
 |---|---|---|
-| ![A manager approves a purchase request line by line](docs/screenshots/approval.png) | ![Stock list with reorder-point bars](docs/screenshots/stock.png) | ![The dashboard at 390px wide](docs/screenshots/dashboard-phone.png) |
+| ![A manager approves a purchase request line by line](docs/screenshots/approval.png) | ![Stock list with reorder-point bars](docs/screenshots/stock.png) | ![Purchase orders at 390px wide, each row a card with its status badge](docs/screenshots/orders-phone.png) |
 
 Screenshots come from the production Docker image in CI (`.github/workflows/docker.yml`).
 
@@ -98,6 +98,7 @@ The interface follows one direction, **"meja kerja rapi"** (a tidy desk): tidy, 
   - Numbers use tabular figures.
   - Hover styles apply only on devices that can hover.
   - Inputs are 16px on phones, so iOS does not zoom in.
+  - On phones, list tables become labelled cards through Laravolt's Basictable (the `basictable` class).
   - Status badges always carry a label, never color alone.
   - The chart has a table view.
 
