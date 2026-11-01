@@ -1,0 +1,13 @@
+# GitHub Actions only: Composer and npm are updated by the update-laravel workflow.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: main
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 14
+    groups:
+      actions:
+        patterns: ["*"]
