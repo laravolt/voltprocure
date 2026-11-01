@@ -26,7 +26,7 @@ jobs:
       # push branch PR tidak memicu workflow tests (anti-loop GitHub) sehingga
       # PR deps tampil tanpa checks; set DEPS_PAT (repo scope) untuk
       # menghilangkan keharusan close/reopen PR tiap minggu.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.DEPS_PAT || github.token }}
 
@@ -50,7 +50,7 @@ jobs:
           echo "LARAVEL=$(composer show laravel/framework --no-interaction | awk '/^versions/ {print $NF}')" >> "$GITHUB_ENV"
 
       - name: Open PR
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.DEPS_PAT || github.token }}
           branch: deps/laravel-auto
