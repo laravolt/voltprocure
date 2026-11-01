@@ -15,7 +15,7 @@
         "laravel/octane": "^2.22",
         "laravel/tinker": "^3.0.2",
         "laravolt/avatar": "^8.0.1",
-        "laravolt/laravolt": "^8.2.2",
+        "laravolt/laravolt": "^8.2.3",
         "livewire/livewire": "^4.4.8",
         "nunomaduro/essentials": "^1.2.0"
     },
@@ -82,7 +82,7 @@
         ],
         "update:requirements": [
             "composer bump",
-            "bunx npm-check-updates -u"
+            "bunx npm-check-updates -u --cooldown 14"
         ],
         "lint": [
             "rector",
