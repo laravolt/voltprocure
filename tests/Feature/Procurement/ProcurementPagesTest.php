@@ -15,6 +15,7 @@ use App\Models\PurchaseOrder;
 use App\Models\PurchaseRequest;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 
 beforeEach(function (): void {
     $this->withoutVite();
@@ -92,6 +93,54 @@ it('tells a person with nothing to do that their desk is clear', function (): vo
     $this->actingAs($this->requester)->get(route('home'))
         ->assertOk()
         ->assertSee('Meja Anda rapi');
+});
+
+it('charts order value in the week each order was issued', function (): void {
+    // Wednesday; the chart's eight weeks run from Monday 7 September to Sunday 1 November.
+    $this->travelTo(Date::parse('2026-10-28 10:00'));
+    $issued = fn (string $at, int $total): PurchaseOrder => PurchaseOrder::factory()->create([
+        'supplier_id' => $this->supplier->getKey(),
+        'buyer_id' => $this->buyer->getKey(),
+        'issued_at' => Date::parse($at),
+        'total' => $total,
+    ]);
+    $issued('2026-09-06 23:59:59', 1);
+    $issued('2026-09-07 00:00:00', 10);
+    $issued('2026-10-25 23:59:59', 100);
+    $issued('2026-10-26 00:00:00', 1_000);
+    $issued('2026-10-28 09:00:00', 10_000);
+    $issued('2026-11-02 00:00:00', 100_000);
+
+    $this->actingAs($this->buyer)->get(route('home'))
+        ->assertOk()
+        ->assertViewHas('weeks', function (array $weeks): bool {
+            expect($weeks)->toHaveCount(8)
+                ->and($weeks[0]['start']->toDateTimeString())->toBe('2026-09-07 00:00:00')
+                ->and(array_column($weeks, 'total'))->toBe([10, 0, 0, 0, 0, 0, 100, 11_000])
+                ->and(array_column($weeks, 'orders'))->toBe([1, 0, 0, 0, 0, 0, 1, 2]);
+
+            return true;
+        });
+});
+
+it('loads the dashboard with the same number of queries however many requests wait', function (): void {
+    $queriesFor = function (): int {
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        $this->actingAs($this->manager)->get(route('home'))->assertOk();
+        DB::disableQueryLog();
+
+        return count(DB::getQueryLog());
+    };
+
+    submittedRequest();
+    $queriesFor(); // The first request fills per-process caches.
+    $one = $queriesFor();
+
+    submittedRequest();
+    submittedRequest();
+
+    expect($queriesFor())->toBe($one);
 });
 
 it('lists only the requests a person is allowed to see', function (): void {
