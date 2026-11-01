@@ -3,7 +3,7 @@
 | Stack | Purpose | Image | Command |
 | --- | --- | --- | --- |
 | `docker-compose.dev.yml` | Mounted-source dev sandbox | `laravoltdev/image:php8.5-dev` (pulled, not built) | `docker compose -f docker-compose.dev.yml up -d` |
-| `docker-compose.prod.yml` | Baked demo/production: Laravel Octane on FrankenPHP, worker mode | built on `laravoltdev/image:php8.5-prod-v2.0.0` | `docker compose -f docker-compose.prod.yml up --build -d` |
+| `docker-compose.prod.yml` | Baked demo/production: Laravel Octane on FrankenPHP, worker mode | built on `laravoltdev/image:php8.5-prod-v2.1.0` | `docker compose -f docker-compose.prod.yml up --build -d` |
 
 ## Development
 
