@@ -15,13 +15,13 @@ return [
             ],
             'Permintaan barang' => [
                 'route' => 'purchase-requests.index',
-                'active' => 'purchase-requests*',
+                'active' => 'purchase-requests/*',
                 'icon' => 'clipboard-list',
                 'permissions' => [Permission::PURCHASE_REQUEST_CREATE, Permission::PURCHASE_REQUEST_APPROVE, Permission::PURCHASE_ORDER_MANAGE],
             ],
             'Pesanan pembelian' => [
                 'route' => 'purchase-orders.index',
-                'active' => 'purchase-orders*',
+                'active' => 'purchase-orders/*',
                 'icon' => 'file-invoice',
                 'permissions' => [Permission::PURCHASE_ORDER_MANAGE, Permission::GOODS_RECEIPT_CREATE],
             ],
@@ -32,12 +32,12 @@ return [
         'menu' => [
             'Stok barang' => [
                 'route' => 'items.index',
-                'active' => 'items*',
+                'active' => 'items/*',
                 'icon' => 'boxes',
             ],
             'Pemasok' => [
                 'route' => 'suppliers.index',
-                'active' => 'suppliers*',
+                'active' => 'suppliers/*',
                 'icon' => 'truck',
                 'permissions' => [Permission::PURCHASE_ORDER_MANAGE],
             ],
