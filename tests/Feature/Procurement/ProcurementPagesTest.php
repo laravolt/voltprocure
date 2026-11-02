@@ -313,3 +313,20 @@ it('shows suppliers to procurement only', function (): void {
     $this->actingAs($this->buyer)->get(route('suppliers.index'))->assertOk()->assertSee('PT Sinar Data Komputindo');
     $this->actingAs($this->requester)->get(route('suppliers.index'))->assertForbidden();
 });
+
+it('keeps the menu entry of a section active on its detail and create pages', function (): void {
+    $order = issuedOrder();
+    $active = fn (string $section): string => '#<a href="'.preg_quote(e(route($section)), '#').'" class="[^"]*bg-gray-100 dark:bg-neutral-700"#';
+
+    foreach ([
+        [$this->requester, route('purchase-requests.index'), 'purchase-requests.index'],
+        [$this->requester, route('purchase-requests.create'), 'purchase-requests.index'],
+        [$this->requester, route('purchase-requests.show', $order->purchaseRequest), 'purchase-requests.index'],
+        [$this->buyer, route('purchase-orders.show', $order), 'purchase-orders.index'],
+        [$this->buyer, route('items.show', $this->toner), 'items.index'],
+        [$this->buyer, route('suppliers.index'), 'suppliers.index'],
+    ] as [$user, $page, $section]) {
+        expect($this->actingAs($user)->get($page)->assertOk()->getContent())
+            ->toMatch($active($section), "{$page} should mark {$section} active");
+    }
+});
