@@ -49,17 +49,30 @@ The `scheduler` service uses the same image to run `schedule:work`. With `APP_DE
 - **OPcache with JIT, never re-checking files** (`PHP_OPCACHE_ENABLE=1`, `PHP_OPCACHE_JIT=tracing` in the Dockerfile; the base image writes them to `php.ini`). Nothing changes inside a running container.
 - **SQLite tuned for concurrent use:** WAL journal, `synchronous=normal`, a 5 s busy timeout and `IMMEDIATE` transactions. Sessions use encrypted cookies and the cache uses files, so SQLite only receives real data changes.
 
-Measured by the [`perf` workflow](.github/workflows/perf.yml) on a GitHub-hosted runner (4 vCPU), PHP 8.5 with OPcache JIT, `APP_ENV=production` after `optimize`, signed in as procurement:
+Measured by the [`perf-container` workflow](.github/workflows/perf-container.yml) on one GitHub-hosted runner (4 vCPU), PHP 8.5 with OPcache JIT, `APP_ENV=production` after `optimize`, signed in as procurement. Every column comes from the same run:
 
-| Endpoint | CPU per request, one worker | Production image, 2 workers, wrk with 8 connections |
-| --- | --- | --- |
-| `/up` | 0.8 ms | ~1,950 req/s, p50 4 ms |
-| `/home` (dashboard, 16 queries) | 8.0 ms | ~130 req/s (~7,800/min), p50 60 ms |
-| `/purchase-requests` | 6.2 ms | ~160 req/s, p50 49 ms |
-| `/items` | 4.6 ms | ~215 req/s, p50 36 ms |
-| `/suppliers` | 3.2 ms | ~285 req/s, p50 27 ms |
+| Endpoint | In-process, one worker | Production image, one worker: CPU per request | Production image, 2 workers, wrk with 8 connections |
+| --- | --- | --- | --- |
+| `/up` | 1.2 ms | 1.2 ms | ~1,700 req/s, p50 5 ms |
+| `/home` (dashboard, 16 queries) | 12.8 ms | 15.4 ms | ~135 req/s (~8,100/min), p50 58 ms |
+| `/purchase-requests` | 10.2 ms | 12.2 ms | ~165 req/s, p50 48 ms |
+| `/purchase-orders` | 10.5 ms | 11.9 ms | ~170 req/s, p50 47 ms |
+| `/items` | 7.4 ms | 8.3 ms | ~235 req/s, p50 33 ms |
+| `/suppliers` | 4.8 ms | 5.7 ms | ~345 req/s, p50 23 ms |
 
-Runners differ in CPU speed by up to 2x between runs, so read these as orders of magnitude. To judge a change, push it to a `perf/**` branch: the workflow measures main and the branch one after the other on the same runner and prints the speed-up. Throughput scales with `OCTANE_WORKERS` and CPU count.
+**In-process** is `scripts/perf/profile.php` run inside the image: Octane's `Worker` with no HTTP in front. The image columns use a published port (`-p 127.0.0.1:…:8080`), as `docker-compose.prod.yml` does.
+
+Where the CPU goes beyond the in-process number, measured on the same runner:
+
+- **HTTP serving.** Caddy, FrankenPHP and Octane's request and response handling add 1–2.5 ms per page (10–20%).
+- **The second worker.** It adds 3–4% per request.
+- **Compression.** Browsers ask for it and wrk does not. It adds about 6% with zstd or gzip and about 13% with br, and shrinks the dashboard from 71 KB to 12–14 KB.
+- **docker-proxy.** The published port costs about 0.25 ms CPU per request and changes page throughput by less than 1% (three alternating rounds against host networking).
+- **Not costs.**
+  - The image's ZTS PHP is at most 0.3 ms per page slower than the NTS PHP on the runner, and faster on most pages.
+  - Octane's per-request garbage collection (`octane.garbage`) is off by default, and this app does not publish `config/octane.php`.
+
+Runners differ in CPU speed by up to 2x between runs, so read these as orders of magnitude, and only compare numbers from one run. The `perf` workflow's profile and load jobs run on different runners. To judge a change, push it to a `perf/**` branch: each job measures main and the branch one after the other on the same runner and prints the speed-up. Throughput scales with `OCTANE_WORKERS` and CPU count.
 
 What keeps the pages fast:
 - The dashboard reads each set of documents once and buckets the weekly chart in one pass.

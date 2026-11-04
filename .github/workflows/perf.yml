@@ -3,9 +3,11 @@ name: perf
 # Throughput and CPU profile of the main pages. Run it by hand, or push to a
 # perf/** branch. On a branch, each job measures main and the branch one after
 # the other on the same runner and prints the speed-up: runners differ in speed
-# by up to 2x, so numbers from different runs are not comparable. Results land
-# in the job summary; the profile job also uploads speedscope files (open them
-# at https://www.speedscope.app).
+# by up to 2x, so numbers from different runs are not comparable. The profile
+# and load jobs also run on different runners, so do not compare one job's
+# numbers with the other's; perf-container.yml measures both on one runner.
+# Results land in the job summary; the profile job also uploads speedscope
+# files (open them at https://www.speedscope.app).
 
 on:
   workflow_dispatch:

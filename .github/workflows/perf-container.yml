@@ -1,0 +1,94 @@
+name: perf-container
+
+# Where the production container spends CPU per page, all on one runner: the
+# in-process profile on the host (setup-php, NTS) and inside the image (its ZTS
+# PHP), then wrk against the image with 1 and 2 workers, through a published
+# port (docker-proxy) and with host networking, and with zstd, br and gzip
+# responses. CPU time per request is split by process (container, docker-proxy,
+# Docker daemons, wrk, whole machine). Run it by hand when a change touches the
+# image, the Caddyfile or the Octane setup; it takes about 15 minutes.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gap:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_URL: http://127.0.0.1
+      APP_DEMO: "true"
+      APP_FORCE_HTTPS: "false"
+      DB_CONNECTION: sqlite
+      SESSION_DRIVER: cookie
+      CACHE_STORE: file
+      LOG_CHANNEL: stderr
+      OCTANE_SERVER: frankenphp
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build the production image
+        run: docker build -q -f docker/frankenphp/prod.Dockerfile -t voltprocure:gap .
+
+      - name: Install wrk
+        run: sudo apt-get update -q && sudo apt-get install -yq wrk
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          tools: composer:v2
+          coverage: none
+          # Same OPcache settings as the production image; no excimer, so both
+          # profiles measure plain wall time per request.
+          ini-values: opcache.enable_cli=1, opcache.jit=tracing, opcache.jit_buffer_size=64M, opcache.validate_timestamps=0, memory_limit=512M
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Install, seed and cache the app on the host as the image does
+        run: |
+          key="base64:$(openssl rand -base64 32)"
+          echo "::add-mask::$key"
+          echo "APP_KEY=$key" >> "$GITHUB_ENV"
+          export APP_KEY="$key"
+          export DB_DATABASE="$PWD/database/data/perf.sqlite"
+          echo "DB_DATABASE=$DB_DATABASE" >> "$GITHUB_ENV"
+          composer install --no-dev --no-scripts --prefer-dist --no-interaction --no-progress
+          composer dump-autoload --classmap-authoritative --no-dev
+          bun install --frozen-lockfile
+          bun run build
+          php artisan package:discover --ansi
+          php artisan laravolt:extract-assets --no-interaction
+          php artisan laravolt:link --no-interaction
+          mkdir -p database/data
+          touch "$DB_DATABASE"
+          php artisan migrate --force --seed --no-interaction
+          php artisan optimize --no-interaction
+
+      - name: In-process profile on the host (NTS)
+        run: |
+          php -v | head -1
+          php -i | grep -E '^Thread Safety'
+          PERF_LABEL=host php scripts/perf/profile.php 200 perf-gap/host-profile
+
+      - name: Measure the container
+        run: scripts/perf/container-gap.sh voltprocure:gap 10s
+
+      - name: Container logs
+        if: failure()
+        run: docker logs gap 2>&1 | tail -100 || true
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: perf-gap
+          path: perf-gap
