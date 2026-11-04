@@ -69,7 +69,7 @@ Where the CPU goes beyond the in-process number, measured on the same runner:
 - **Compression.** Browsers ask for it and wrk does not. It adds about 6% with zstd or gzip and about 13% with br, and shrinks the dashboard from 71 KB to 12–14 KB.
 - **docker-proxy.** The published port costs about 0.25 ms CPU per request and changes page throughput by less than 1% (three alternating rounds against host networking).
 - **Not costs.**
-  - The image's ZTS PHP runs within 2% of the NTS PHP on the runner, or faster.
+  - The image's ZTS PHP is at most 0.3 ms per page slower than the NTS PHP on the runner, and faster on most pages.
   - Octane's per-request garbage collection (`octane.garbage`) is off by default, and this app does not publish `config/octane.php`.
 
 Runners differ in CPU speed by up to 2x between runs, so read these as orders of magnitude, and only compare numbers from one run. The `perf` workflow's profile and load jobs run on different runners. To judge a change, push it to a `perf/**` branch: each job measures main and the branch one after the other on the same runner and prints the speed-up. Throughput scales with `OCTANE_WORKERS` and CPU count.
