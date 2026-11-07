@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 use App\Http\Middleware\RejectRevokedSession;
 use App\Models\User;
+use Illuminate\Routing\Router;
+use Illuminate\Session\SessionManager;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 test('the web group signs out other sessions after a password change and rejects revoked sessions', function (): void {
-    expect(app('router')->getMiddlewareGroups()['web'])
+    expect(resolve(Router::class)->getMiddlewareGroups()['web'])
         ->toContain('auth.session')
         ->toContain(RejectRevokedSession::class);
 });
@@ -31,7 +33,7 @@ test('a revoked session is signed out on its next request', function (): void {
     /** @var TestCase */
     $test = $this;
     $sessionId = Str::random(40);
-    $store = app('session')->driver();
+    $store = resolve(SessionManager::class)->driver();
     $store->setId($sessionId);
     RejectRevokedSession::revoke($store);
 
