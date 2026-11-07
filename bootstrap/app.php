@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\RejectRevokedSession;
 use App\Http\Middleware\UseIndonesianDates;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -22,7 +23,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // A password change or reset signs out the user's other sessions.
+        $middleware->authenticateSessions();
+
         $middleware->appendToGroup('web', [
+            RejectRevokedSession::class,
             DetectFlashMessage::class,
             CheckPassword::class,
             UseIndonesianDates::class,
