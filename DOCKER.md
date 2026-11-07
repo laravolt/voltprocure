@@ -36,7 +36,7 @@ The container runs as `www-data` on `:8080`, from `/var/www/html`. The compose f
 
 On start, the base image's entrypoint runs `docker/frankenphp/60-voltprocure.sh`, which:
 1. Stops with a hint if `APP_KEY` is empty.
-2. Creates and seeds the SQLite database if the volume is empty, otherwise runs pending migrations.
+2. Creates the SQLite database if the volume is empty, otherwise runs pending migrations. The demo data and demo accounts (published passwords) are seeded only when `APP_DEMO=true`; otherwise the database starts empty and you create the first admin with `docker compose -f docker-compose.prod.yml exec app php artisan laravolt:admin`.
 3. Runs `php artisan optimize`.
 
 Then `voltprocure-octane` starts `octane:frankenphp` with the base image's Caddyfile (`--caddyfile=/etc/frankenphp/Caddyfile`), so worker mode gets the same trusted proxies, security headers, asset caching and `/healthcheck` as the image's classic mode. Other commands, such as `schedule:work` or a one-off `artisan` call, skip the preparation step.
