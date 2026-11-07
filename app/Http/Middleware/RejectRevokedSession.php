@@ -26,6 +26,9 @@ final class RejectRevokedSession
         Cache::put(self::key($session->getId()), true, now()->addMinutes(config()->integer('session.lifetime', 120)));
     }
 
+    /**
+     * @param  Closure(Request): (Response)  $next
+     */
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->hasSession() && Cache::has(self::key($request->session()->getId()))) {
