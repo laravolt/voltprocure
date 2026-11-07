@@ -26,9 +26,12 @@ jobs:
       # push branch PR tidak memicu workflow tests (anti-loop GitHub) sehingga
       # PR deps tampil tanpa checks; set DEPS_PAT (repo scope) untuk
       # menghilangkan keharusan close/reopen PR tiap minggu.
+      # Do not leave a write token in .git/config while composer and bunx run
+      # freshly resolved third-party code; create-pull-request gets its own
+      # token input below.
       - uses: actions/checkout@v7
         with:
-          token: ${{ secrets.DEPS_PAT || github.token }}
+          persist-credentials: false
 
       - uses: shivammathur/setup-php@v2
         with:
