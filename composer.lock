@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0989a960e64c61f42fcbd5d4fac7a610",
+    "content-hash": "f0c3518fa9edd93807d485b7e5b88dbd",
     "packages": [
         {
             "name": "akaunting/laravel-setting",
@@ -2689,16 +2689,16 @@
         },
         {
             "name": "laravolt/laravolt",
-            "version": "v8.3.3",
+            "version": "v8.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravolt/laravolt.git",
-                "reference": "008d1eea7dadb070a498c6aee8abea415fb56535"
+                "reference": "1798a0f19e73556116d6c7786d61f4dc99535d12"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/008d1eea7dadb070a498c6aee8abea415fb56535",
-                "reference": "008d1eea7dadb070a498c6aee8abea415fb56535",
+                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/1798a0f19e73556116d6c7786d61f4dc99535d12",
+                "reference": "1798a0f19e73556116d6c7786d61f4dc99535d12",
                 "shasum": ""
             },
             "require": {
@@ -2729,7 +2729,8 @@
                 "php": "^8.3",
                 "spatie/laravel-backup": "^10.3",
                 "spatie/laravel-medialibrary": "^11.23",
-                "spatie/once": "^3.1.1"
+                "spatie/once": "^3.1.1",
+                "symfony/html-sanitizer": "^7.4.23|^8.1.11"
             },
             "require-dev": {
                 "larastan/larastan": "^3.13",
@@ -2806,9 +2807,9 @@
             "description": "The Laravolt Platform.",
             "support": {
                 "issues": "https://github.com/laravolt/laravolt/issues",
-                "source": "https://github.com/laravolt/laravolt/tree/v8.3.3"
+                "source": "https://github.com/laravolt/laravolt/tree/v8.3.4"
             },
-            "time": "2026-11-07T04:58:59+00:00"
+            "time": "2026-11-14T15:27:46+00:00"
         },
         {
             "name": "lavary/laravel-menu",
@@ -6290,6 +6291,78 @@
                 }
             ],
             "time": "2026-11-02T10:58:30+00:00"
+        },
+        {
+            "name": "symfony/html-sanitizer",
+            "version": "v8.1.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/html-sanitizer.git",
+                "reference": "1ecf13d98b75f5d8a2dcc1ffecde7184d29506ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/html-sanitizer/zipball/1ecf13d98b75f5d8a2dcc1ffecde7184d29506ef",
+                "reference": "1ecf13d98b75f5d8a2dcc1ffecde7184d29506ef",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "league/uri": "^6.5|^7.0",
+                "php": ">=8.4.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\HtmlSanitizer\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Titouan Galopin",
+                    "email": "galopintitouan@gmail.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Provides an object-oriented API to sanitize untrusted HTML input for safe insertion into a document's DOM.",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "Purifier",
+                "html",
+                "sanitizer"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/html-sanitizer/tree/v8.1.11"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2026-11-04T08:39:20+00:00"
         },
         {
             "name": "symfony/http-foundation",
