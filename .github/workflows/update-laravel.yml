@@ -21,16 +21,18 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write # dispatch the PR checks below
 
 jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      HAS_DEPS_PAT: ${{ secrets.DEPS_PAT != '' }}
     steps:
       # token: PAT opsional (secret DEPS_PAT). Dengan GITHUB_TOKEN bawaan,
-      # push branch PR tidak memicu workflow tests (anti-loop GitHub) sehingga
-      # PR deps tampil tanpa checks; set DEPS_PAT (repo scope) untuk
-      # menghilangkan keharusan close/reopen PR tiap minggu.
+      # push branch PR tidak memicu workflow tests (anti-loop GitHub); langkah
+      # terakhir menjalankan checks lewat workflow_dispatch sebagai gantinya.
       # Do not leave a write token in .git/config while composer and bunx run
       # freshly resolved third-party code; create-pull-request gets its own
       # token input below.
@@ -58,6 +60,7 @@ jobs:
           echo "LARAVEL=$(composer show laravel/framework --no-interaction | awk '/^versions/ {print $NF}')" >> "$GITHUB_ENV"
 
       - name: Open PR
+        id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.DEPS_PAT || github.token }}
@@ -72,3 +75,17 @@ jobs:
             composer.json
             composer.lock
           delete-branch: true
+
+      # A PR pushed with GITHUB_TOKEN does not start pull_request workflows, so
+      # start the checks on the PR branch; their results show on the PR's head
+      # commit. Skipped when DEPS_PAT is set, because then the push starts them.
+      - name: Run the PR checks
+        if: >-
+          env.HAS_DEPS_PAT != 'true' &&
+          (steps.cpr.outputs.pull-request-operation == 'created' ||
+           steps.cpr.outputs.pull-request-operation == 'updated')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run tests.yml --repo "$GITHUB_REPOSITORY" --ref deps/laravel-auto
+          gh workflow run docker.yml --repo "$GITHUB_REPOSITORY" --ref deps/laravel-auto
