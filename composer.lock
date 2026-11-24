@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6bacb0a269451f8a24af6874f7465421",
+    "content-hash": "b8d25320be9fbec1a1cafe442a46fd8e",
     "packages": [
         {
             "name": "akaunting/laravel-setting",
@@ -2711,16 +2711,16 @@
         },
         {
             "name": "laravolt/laravolt",
-            "version": "v8.4.0",
+            "version": "v8.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravolt/laravolt.git",
-                "reference": "5de7bd4fe5af11cf22272a1845398ab600a8e552"
+                "reference": "66e70da1a345193ebe41c240ca199e5d7358e57c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/5de7bd4fe5af11cf22272a1845398ab600a8e552",
-                "reference": "5de7bd4fe5af11cf22272a1845398ab600a8e552",
+                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/66e70da1a345193ebe41c240ca199e5d7358e57c",
+                "reference": "66e70da1a345193ebe41c240ca199e5d7358e57c",
                 "shasum": ""
             },
             "require": {
@@ -2840,9 +2840,9 @@
             ],
             "support": {
                 "issues": "https://github.com/laravolt/laravolt/issues",
-                "source": "https://github.com/laravolt/laravolt/tree/v8.4.0"
+                "source": "https://github.com/laravolt/laravolt/tree/v8.4.1"
             },
-            "time": "2026-11-24T01:23:27+00:00"
+            "time": "2026-11-24T06:03:41+00:00"
         },
         {
             "name": "lavary/laravel-menu",

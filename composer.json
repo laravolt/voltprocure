@@ -15,7 +15,7 @@
         "laravel/octane": "^2.25",
         "laravel/tinker": "^3.2.0",
         "laravolt/avatar": "^8.0.1",
-        "laravolt/laravolt": "^8.4",
+        "laravolt/laravolt": "^8.4.1",
         "livewire/livewire": "^4.4.8",
         "nunomaduro/essentials": "^1.2.0"
     },
