@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4083a06181e05a24674f932d5bc7f970",
+    "content-hash": "6bacb0a269451f8a24af6874f7465421",
     "packages": [
         {
             "name": "akaunting/laravel-setting",
@@ -2711,16 +2711,16 @@
         },
         {
             "name": "laravolt/laravolt",
-            "version": "v8.3.4",
+            "version": "v8.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravolt/laravolt.git",
-                "reference": "1798a0f19e73556116d6c7786d61f4dc99535d12"
+                "reference": "5de7bd4fe5af11cf22272a1845398ab600a8e552"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/1798a0f19e73556116d6c7786d61f4dc99535d12",
-                "reference": "1798a0f19e73556116d6c7786d61f4dc99535d12",
+                "url": "https://api.github.com/repos/laravolt/laravolt/zipball/5de7bd4fe5af11cf22272a1845398ab600a8e552",
+                "reference": "5de7bd4fe5af11cf22272a1845398ab600a8e552",
                 "shasum": ""
             },
             "require": {
@@ -2826,12 +2826,23 @@
             "license": [
                 "MIT"
             ],
-            "description": "The Laravolt Platform.",
+            "description": "AI-ready Laravel application platform: Thunderclap CRUD scaffolding, admin UI on Preline 5, forms, tables, access control and workflows.",
+            "homepage": "https://laravolt.dev",
+            "keywords": [
+                "admin-panel",
+                "crud",
+                "laravel",
+                "livewire",
+                "preline",
+                "scaffolding",
+                "tailwindcss",
+                "workflow"
+            ],
             "support": {
                 "issues": "https://github.com/laravolt/laravolt/issues",
-                "source": "https://github.com/laravolt/laravolt/tree/v8.3.4"
+                "source": "https://github.com/laravolt/laravolt/tree/v8.4.0"
             },
-            "time": "2026-11-14T15:27:46+00:00"
+            "time": "2026-11-24T01:23:27+00:00"
         },
         {
             "name": "lavary/laravel-menu",
