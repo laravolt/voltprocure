@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8d25320be9fbec1a1cafe442a46fd8e",
+    "content-hash": "65efae94ec24b18344726e3976d8d0cf",
     "packages": [
         {
             "name": "akaunting/laravel-setting",
@@ -2107,16 +2107,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v13.43.0",
+            "version": "v13.44.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "72aa7e151062e218704d8660f407e6070040d8bc"
+                "reference": "8a8c4a84852869e13190d89f9da873cd9a70f14c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/72aa7e151062e218704d8660f407e6070040d8bc",
-                "reference": "72aa7e151062e218704d8660f407e6070040d8bc",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/8a8c4a84852869e13190d89f9da873cd9a70f14c",
+                "reference": "8a8c4a84852869e13190d89f9da873cd9a70f14c",
                 "shasum": ""
             },
             "require": {
@@ -2225,7 +2225,7 @@
                 "ext-gmp": "*",
                 "fakerphp/faker": "^1.24",
                 "intervention/image": "^4.2",
-                "jasonmccreary/double": "^1.1",
+                "jasonmccreary/double": "^1.2.1",
                 "laravel/pint": "^1.18",
                 "league/flysystem-aws-s3-v3": "^3.25.1",
                 "league/flysystem-ftp": "^3.25.1",
@@ -2336,21 +2336,21 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-11-17T14:58:33+00:00",
-            "published-time": "2026-11-17T14:58:44+00:00"
+            "time": "2026-11-24T16:10:06+00:00",
+            "published-time": "2026-11-24T16:10:17+00:00"
         },
         {
             "name": "laravel/octane",
-            "version": "v2.25.0",
+            "version": "v2.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/octane.git",
-                "reference": "011378678beb71729a773668fda74dba78f44aec"
+                "reference": "68f6941c4499ddf3cff48b8e5e94d46e57ca3601"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/octane/zipball/011378678beb71729a773668fda74dba78f44aec",
-                "reference": "011378678beb71729a773668fda74dba78f44aec",
+                "url": "https://api.github.com/repos/laravel/octane/zipball/68f6941c4499ddf3cff48b8e5e94d46e57ca3601",
+                "reference": "68f6941c4499ddf3cff48b8e5e94d46e57ca3601",
                 "shasum": ""
             },
             "require": {
@@ -2426,21 +2426,21 @@
                 "issues": "https://github.com/laravel/octane/issues",
                 "source": "https://github.com/laravel/octane"
             },
-            "time": "2026-11-17T14:41:32+00:00",
-            "published-time": "2026-11-17T15:17:16+00:00"
+            "time": "2026-11-18T13:22:02+00:00",
+            "published-time": "2026-11-24T16:25:19+00:00"
         },
         {
             "name": "laravel/prompts",
-            "version": "v0.3.27",
+            "version": "v0.3.28",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/prompts.git",
-                "reference": "abdfc75a1ae6c6f21522daed50da7124cbff09d2"
+                "reference": "72247703c4d4ac1d6122955c90433aa9429bd236"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/prompts/zipball/abdfc75a1ae6c6f21522daed50da7124cbff09d2",
-                "reference": "abdfc75a1ae6c6f21522daed50da7124cbff09d2",
+                "url": "https://api.github.com/repos/laravel/prompts/zipball/72247703c4d4ac1d6122955c90433aa9429bd236",
+                "reference": "72247703c4d4ac1d6122955c90433aa9429bd236",
                 "shasum": ""
             },
             "require": {
@@ -2483,10 +2483,10 @@
             ],
             "description": "Add beautiful and user-friendly forms to your command-line applications.",
             "support": {
-                "source": "https://github.com/laravel/prompts/tree/v0.3.27"
+                "source": "https://github.com/laravel/prompts/tree/v0.3.28"
             },
-            "time": "2026-11-09T16:07:10+00:00",
-            "published-time": "2026-11-09T16:09:07+00:00"
+            "time": "2026-11-23T14:41:10+00:00",
+            "published-time": "2026-11-24T16:27:03+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -10894,16 +10894,16 @@
         },
         {
             "name": "laravel/mcp",
-            "version": "v1.2.1",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/mcp.git",
-                "reference": "a8057f222549e42384d49482042d762a547aaf2a"
+                "reference": "f63967363cd6a41b50036cb9250beab21ee8b1c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/mcp/zipball/a8057f222549e42384d49482042d762a547aaf2a",
-                "reference": "a8057f222549e42384d49482042d762a547aaf2a",
+                "url": "https://api.github.com/repos/laravel/mcp/zipball/f63967363cd6a41b50036cb9250beab21ee8b1c4",
+                "reference": "f63967363cd6a41b50036cb9250beab21ee8b1c4",
                 "shasum": ""
             },
             "require": {
@@ -10918,7 +10918,9 @@
                 "illuminate/support": "^12.41.1|^13.0",
                 "illuminate/validation": "^12.41.1|^13.0",
                 "php": "^8.2",
-                "symfony/process": "^7.4.5|^8.0.5"
+                "symfony/mime": "^7.4|^8.0",
+                "symfony/process": "^7.4.5|^8.0.5",
+                "symfony/yaml": "^7.4|^8.0"
             },
             "require-dev": {
                 "jasonmccreary/double": "^1.0",
@@ -10965,8 +10967,8 @@
                 "issues": "https://github.com/laravel/mcp/issues",
                 "source": "https://github.com/laravel/mcp"
             },
-            "time": "2026-11-17T16:36:18+00:00",
-            "published-time": "2026-11-17T18:52:14+00:00"
+            "time": "2026-11-23T11:10:06+00:00",
+            "published-time": "2026-11-24T17:06:12+00:00"
         },
         {
             "name": "laravel/pail",
