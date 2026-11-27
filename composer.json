@@ -11,8 +11,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.5.0",
-        "laravel/framework": "^13.43",
-        "laravel/octane": "^2.25",
+        "laravel/framework": "^13.44.1",
+        "laravel/octane": "^2.26",
         "laravel/tinker": "^3.2.0",
         "laravolt/avatar": "^8.0.1",
         "laravolt/laravolt": "^8.4.1",
